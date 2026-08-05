@@ -80,6 +80,12 @@ DATABASES = {
     }
 }
 
+# Notificaciones: en desarrollo los correos se imprimen en la consola en vez
+# de enviarse de verdad. NOTIFICAR_POR_EMAIL controla qué Notificador
+# instancia NotificadorFactory.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+NOTIFICAR_POR_EMAIL = True
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
