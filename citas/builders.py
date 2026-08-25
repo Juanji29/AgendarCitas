@@ -1,13 +1,5 @@
 from .models import Cita
 
-_POLITICAS_ESPECIALIDAD = {
-    'cardiologia': {'duracion_minutos': 30, 'requiere_referido': True},
-    'pediatria': {'duracion_minutos': 25, 'requiere_referido': False},
-    'dermatologia': {'duracion_minutos': 20, 'requiere_referido': False},
-    'medicina general': {'duracion_minutos': 20, 'requiere_referido': False},
-}
-_POLITICA_POR_DEFECTO = {'duracion_minutos': 20, 'requiere_referido': False}
-
 
 class CitaBuilder:
     """Construye una Cita paso a paso y garantiza que sea válida antes de guardarla."""
@@ -26,11 +18,8 @@ class CitaBuilder:
 
     def con_especialidad(self, especialidad):
         self._cita.especialidad = especialidad
-        politica = _POLITICAS_ESPECIALIDAD.get(
-            (especialidad or '').strip().lower(), _POLITICA_POR_DEFECTO
-        )
-        self._cita.duracion_minutos = politica['duracion_minutos']
-        self._cita.requiere_referido = politica['requiere_referido']
+        self._cita.duracion_minutos = especialidad.duracion_minutos
+        self._cita.requiere_referido = especialidad.requiere_referido
         return self
 
     def con_fecha_hora(self, fecha, hora):

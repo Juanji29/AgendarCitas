@@ -3,6 +3,20 @@ from django.db import models
 from django.utils import timezone
 
 
+class Especialidad(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    duracion_minutos = models.PositiveSmallIntegerField()
+    requiere_referido = models.BooleanField(default=False)
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['nombre']
+        verbose_name_plural = 'Especialidades'
+
+    def __str__(self):
+        return self.nombre
+
+
 class Cita(models.Model):
     ESTADO_PENDIENTE = 'pendiente'
     ESTADO_CONFIRMADA = 'confirmada'
@@ -16,7 +30,9 @@ class Cita(models.Model):
     paciente_nombre = models.CharField(max_length=150)
     paciente_email = models.EmailField(blank=True)
     medico_nombre = models.CharField(max_length=150)
-    especialidad = models.CharField(max_length=100)
+    especialidad = models.ForeignKey(
+        Especialidad, null=False, on_delete=models.PROTECT
+    )
     fecha = models.DateField()
     hora = models.TimeField()
     motivo = models.TextField(blank=True)
