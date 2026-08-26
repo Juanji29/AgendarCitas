@@ -7,6 +7,7 @@ app_name = 'citas'
 
 urlpatterns = [
     path('agendar/', views.AgendarCitaView.as_view(), name='agendar_cita'),
+    path('agendar/cancelar/<int:cita_id>/', views.cancelar_cita, name='cancelar_cita'),
     path(
         'agendar/confirmacion/',
         TemplateView.as_view(template_name='citas/cita_agendada.html'),

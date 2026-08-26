@@ -12,7 +12,8 @@ class AgendarCitaView(View):
 
     def get(self, request):
         form = CitaForm(initial=self._datos_paciente(request))
-        return render(request, self.template_name, {'form': form})
+        citas = CitaService.obtener_citas_paciente(request.user.email) if request.user.is_authenticated else []
+        return render(request, self.template_name, {'form': form, 'citas': citas})
 
     @staticmethod
     def _datos_paciente(request):
@@ -40,3 +41,15 @@ class AgendarCitaView(View):
             return render(request, self.template_name, {'form': form})
 
         return redirect('citas:cita_agendada')
+
+
+def cancelar_cita(request, cita_id):
+    if request.method != 'POST' or not request.user.is_authenticated:
+        return redirect('usuarios:login')
+
+    try:
+        CitaService.cancelar_cita(cita_id, request.user.email)
+    except ValidationError:
+        pass
+
+    return redirect('citas:agendar_cita')

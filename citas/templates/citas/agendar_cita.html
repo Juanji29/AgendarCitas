@@ -2,30 +2,79 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agendar Cita</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agendar Cita · HealthBook</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'healthbook/css/styles.css' %}">
 </head>
-<body>
-    <h1>Agendar Cita</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.paciente_nombre.as_hidden }}
-        {{ form.paciente_email.as_hidden }}
+<body class="page booking-page">
+    <main class="card ticket-card">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-name">HealthBook</span>
+        </div>
+        <h1>Agendar cita</h1>
 
-        <p>
-            <strong>Paciente:</strong>
-            {{ form.paciente_nombre.value|default:"No disponible" }}
-        </p>
-        <p>
-            <strong>Correo:</strong>
-            {{ form.paciente_email.value|default:"No disponible" }}
-        </p>
+        <form method="post" class="form">
+            {% csrf_token %}
+            {{ form.paciente_nombre.as_hidden }}
+            {{ form.paciente_email.as_hidden }}
 
-        {{ form.medico_nombre.as_field_group }}
-        {{ form.especialidad.as_field_group }}
-        {{ form.fecha.as_field_group }}
-        {{ form.hora.as_field_group }}
-        {{ form.motivo.as_field_group }}
-        <button type="submit">Agendar</button>
-    </form>
+            <div class="ticket-stub">
+                <div class="stub-field">
+                    <span class="stub-label">Paciente</span>
+                    <span class="stub-value">{{ form.paciente_nombre.value|default:"No disponible" }}</span>
+                </div>
+                <div class="stub-field">
+                    <span class="stub-label">Correo</span>
+                    <span class="stub-value">{{ form.paciente_email.value|default:"No disponible" }}</span>
+                </div>
+            </div>
+
+            <div class="ticket-divider"></div>
+
+            {{ form.medico_nombre.as_field_group }}
+            {{ form.especialidad.as_field_group }}
+            {{ form.fecha.as_field_group }}
+            {{ form.hora.as_field_group }}
+            {{ form.motivo.as_field_group }}
+
+            <button type="submit" class="btn btn-primary btn-block">Agendar</button>
+        </form>
+
+        <div class="ticket-divider"></div>
+
+        <section class="appointments" aria-labelledby="appointments-title">
+            <div class="section-heading">
+                <h2 id="appointments-title">Mis citas</h2>
+                <span class="appointment-count">{{ citas|length }}</span>
+            </div>
+
+            {% if citas %}
+                <div class="appointment-list">
+                    {% for cita in citas %}
+                        <article class="appointment-item">
+                            <div>
+                                <strong>{{ cita.especialidad }}</strong>
+                                <span>{{ cita.fecha|date:'d/m/Y' }} · {{ cita.hora|time:'H:i' }}</span>
+                                <span>Dr. {{ cita.medico_nombre }}</span>
+                            </div>
+                            <form method="post" action="{% url 'citas:cancelar_cita' cita.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Cancelar</button>
+                            </form>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state">No tienes citas agendadas.</p>
+            {% endif %}
+        </section>
+
+        <a class="logout-link" href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
+    </main>
 </body>
 </html>

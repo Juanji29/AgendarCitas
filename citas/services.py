@@ -32,6 +32,31 @@ class CitaService:
         return cita
 
     @staticmethod
+    def obtener_citas_paciente(correo):
+        return Cita.objects.filter(
+            paciente_email=correo,
+        ).exclude(
+            estado=Cita.ESTADO_CANCELADA,
+        ).select_related('especialidad').order_by('fecha', 'hora')
+
+    @staticmethod
+    def cancelar_cita(cita_id, correo):
+        try:
+            cita = Cita.objects.get(
+                id=cita_id,
+                paciente_email=correo,
+            )
+        except Cita.DoesNotExist as error:
+            raise ValidationError('La cita no existe o no pertenece al paciente.') from error
+
+        if cita.estado == Cita.ESTADO_CANCELADA:
+            raise ValidationError('La cita ya está cancelada.')
+
+        cita.estado = Cita.ESTADO_CANCELADA
+        cita.save(update_fields=['estado'])
+        return cita
+
+    @staticmethod
     def _validar_fecha(cita):
         if cita.fecha < timezone.localdate():
             raise ValidationError('No se pueden agendar citas en fechas pasadas.')

@@ -2,9 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cita Agendada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cita Agendada · HealthBook</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'healthbook/css/styles.css' %}">
 </head>
-<body>
-    <h1>¡Tu cita fue agendada correctamente!</h1>
+<body class="page confirmation-page">
+    <main class="card ticket-card confirmation-ticket">
+        <div class="stamp" aria-hidden="true">&#10003;</div>
+        <h1>¡Tu cita fue agendada correctamente!</h1>
+        <a class="btn btn-primary btn-block" href="{% url 'citas:agendar_cita' %}">
+            Registrar otra cita
+        </a>
+    </main>
 </body>
 </html>

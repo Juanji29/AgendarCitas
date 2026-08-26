@@ -2,21 +2,32 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar sesión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión · HealthBook</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'healthbook/css/styles.css' %}">
 </head>
-<body>
-    <h1>HealthBook</h1>
-    <h1>Iniciar sesión</h1>
+<body class="page auth-page">
+    <main class="card">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-name">HealthBook</span>
+        </div>
+        <h1>Iniciar sesión</h1>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Iniciar sesión</button>
-    </form>
+        <form method="post" class="form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+        </form>
 
-    <p>
-        ¿No tienes una cuenta?
-        <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a>
-    </p>
+        <p class="auth-switch">
+            ¿No tienes una cuenta?
+            <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a>
+        </p>
+    </main>
 </body>
 </html>

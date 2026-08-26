@@ -1,0 +1,423 @@
+/* ==========================================================================
+   HealthBook — sistema de estilos compartido
+   Concepto: el comprobante de cita como boleta/ticket de ventanilla clínica.
+   ========================================================================== */
+
+:root {
+  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  /* Paleta */
+  --color-bg: #EEF1E8;          /* Bosque — fondo */
+  --color-surface: #FFFFFF;     /* Marfil — superficie de tarjeta */
+  --color-surface-alt: #F7F5EE; /* Marfil suave — franja del stub */
+  --color-ink: #1E2B25;         /* Tinta — texto principal */
+  --color-ink-soft: #5B6960;    /* Tinta suave — texto secundario */
+  --color-primary: #2C5C4E;     /* Pino — acción principal */
+  --color-primary-dark: #1B3D33;
+  --color-accent: #BE6A3A;      /* Terracota — sello / confirmación */
+  --color-accent-soft: #F1DDC9;
+  --color-border: #D8DBCE;      /* Niebla — bordes y perforado */
+  --color-danger: #A8402D;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+
+  --shadow-card: 0 24px 48px -28px rgba(30, 43, 37, 0.38);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-bg);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(44, 92, 78, 0.06), transparent 40%),
+    radial-gradient(circle at 88% 82%, rgba(190, 106, 58, 0.07), transparent 42%);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.7rem;
+  line-height: 1.25;
+  margin: 0 0 20px;
+  color: var(--color-ink);
+}
+
+a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ---------- Layout de página ---------- */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  overflow-y: auto;
+}
+
+.booking-page {
+  align-items: flex-start;
+}
+
+.card {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 40px 36px;
+}
+
+/* ---------- Marca ---------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.brand-mark::before,
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--color-accent-soft);
+  border-radius: 1px;
+}
+
+.brand-mark::before {
+  top: 6px; bottom: 6px; left: 12px; width: 2px;
+}
+
+.brand-mark::after {
+  left: 6px; right: 6px; top: 12px; height: 2px;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- Autenticación (login / registro) ---------- */
+
+.auth-page .card {
+  max-width: 420px;
+}
+
+.auth-switch {
+  margin: 24px 0 0;
+  font-size: 0.92rem;
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Formularios (funciona con {{ form.as_p }} y as_field_group) --- */
+
+.form p,
+.form > div {
+  margin: 0 0 18px;
+}
+
+.form label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-ink-soft);
+  margin-bottom: 6px;
+}
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  color: var(--color-ink);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(44, 92, 78, 0.18);
+}
+
+.form .helptext {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+  margin-top: 5px;
+}
+
+.form ul.errorlist {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  color: var(--color-danger);
+  font-size: 0.82rem;
+}
+
+/* ---------- Botones ---------- */
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.98rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 22px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  padding: 9px 12px;
+  font-size: 0.82rem;
+}
+
+.btn-danger:hover {
+  background: var(--color-danger);
+  color: #FFFFFF;
+}
+
+/* ---------- Ticket de cita (agendar / confirmación) ---------- */
+
+.ticket-card {
+  max-width: 480px;
+  position: relative;
+  overflow: visible;
+  margin: 0 auto;
+}
+
+.ticket-stub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 8px;
+}
+
+.stub-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stub-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.stub-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Perforación tipo boleta: línea punteada con muescas en los bordes de la tarjeta */
+.ticket-divider {
+  position: relative;
+  height: 0;
+  border-top: 2px dashed var(--color-border);
+  margin: 26px -36px;
+}
+
+.ticket-divider::before,
+.ticket-divider::after {
+  content: "";
+  position: absolute;
+  top: -13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-bg);
+}
+
+.ticket-divider::before { left: -13px; }
+.ticket-divider::after { right: -13px; }
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.appointment-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.appointment-list {
+  display: grid;
+  gap: 10px;
+}
+
+.appointment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+}
+
+.appointment-item > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.appointment-item strong {
+  font-size: 0.95rem;
+}
+
+.appointment-item span,
+.empty-state {
+  color: var(--color-ink-soft);
+  font-size: 0.82rem;
+}
+
+.appointment-item form {
+  flex-shrink: 0;
+}
+
+.empty-state {
+  margin: 0;
+}
+
+.logout-link {
+  display: block;
+  margin-top: 22px;
+  text-align: center;
+  color: var(--color-ink-soft);
+  font-size: 0.86rem;
+}
+
+/* ---------- Confirmación ---------- */
+
+.confirmation-ticket {
+  text-align: center;
+  padding-top: 44px;
+}
+
+.confirmation-ticket h1 {
+  font-size: 1.4rem;
+  margin-top: 6px;
+}
+
+.stamp {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 2.5px solid var(--color-accent);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  transform: rotate(-8deg);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .card {
+    padding: 30px 22px;
+  }
+
+  .ticket-divider {
+    margin: 22px -22px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+}
