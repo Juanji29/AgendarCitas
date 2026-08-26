@@ -8,7 +8,23 @@
     <h1>Agendar Cita</h1>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.paciente_nombre.as_hidden }}
+        {{ form.paciente_email.as_hidden }}
+
+        <p>
+            <strong>Paciente:</strong>
+            {{ form.paciente_nombre.value|default:"No disponible" }}
+        </p>
+        <p>
+            <strong>Correo:</strong>
+            {{ form.paciente_email.value|default:"No disponible" }}
+        </p>
+
+        {{ form.medico_nombre.as_field_group }}
+        {{ form.especialidad.as_field_group }}
+        {{ form.fecha.as_field_group }}
+        {{ form.hora.as_field_group }}
+        {{ form.motivo.as_field_group }}
         <button type="submit">Agendar</button>
     </form>
 </body>
