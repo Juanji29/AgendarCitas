@@ -1,6 +1,4 @@
-from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils import timezone
 
 
 class Especialidad(models.Model):
@@ -43,7 +41,3 @@ class Cita(models.Model):
 
     def __str__(self):
         return f'{self.paciente_nombre} con {self.medico_nombre} el {self.fecha} {self.hora}'
-
-    def clean(self):
-        if self.fecha and self.fecha < timezone.localdate():
-            raise ValidationError({'fecha': 'No se pueden agendar citas en fechas pasadas.'})

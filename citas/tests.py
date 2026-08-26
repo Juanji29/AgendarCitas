@@ -1,6 +1,11 @@
+from datetime import date, time, timedelta
+
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from .services import CitaService
+from .models import Especialidad
 from usuarios.models import Paciente
 from usuarios.models import Medico
 
@@ -41,6 +46,29 @@ class AgendarCitaViewTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.context['form']['paciente_nombre'].value(), 'Ana Gomez')
 		self.assertEqual(response.context['form']['paciente_email'].value(), 'ana@example.com')
+
+
+class CitaServiceTests(TestCase):
+	def test_no_permite_agendar_citas_en_fecha_pasada(self):
+		especialidad = Especialidad.objects.create(
+			nombre='Cardiologia',
+			duracion_minutos=30,
+			requiere_referido=True,
+		)
+
+		with self.assertRaisesMessage(
+			ValidationError,
+			'No se pueden agendar citas en fechas pasadas.',
+		):
+			CitaService.agendar_cita({
+				'paciente_nombre': 'Ana Gomez',
+				'paciente_email': 'ana@example.com',
+				'medico_nombre': 'Carlos Perez',
+				'especialidad': especialidad,
+				'fecha': date.today() - timedelta(days=1),
+				'hora': time(10, 0),
+				'motivo': 'Consulta',
+			})
 
 	def test_get_does_not_prefill_anonymous_patient_data(self):
 		response = self.client.get('/citas/agendar/')

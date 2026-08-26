@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from .builders import CitaBuilder
 from .factories import NotificadorFactory
@@ -20,6 +21,7 @@ class CitaService:
             .build()
         )
 
+        CitaService._validar_fecha(cita)
         CitaService._validar_disponibilidad(cita)
 
         cita.save()
@@ -28,6 +30,11 @@ class CitaService:
         notificador.notificar_confirmacion(cita)
 
         return cita
+
+    @staticmethod
+    def _validar_fecha(cita):
+        if cita.fecha < timezone.localdate():
+            raise ValidationError('No se pueden agendar citas en fechas pasadas.')
 
     @staticmethod
     def _validar_disponibilidad(cita):
