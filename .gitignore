@@ -1,0 +1,47 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+.venv_test/
+
+# ---- Django ----
+# Archivos estáticos recolectados (se regeneran con collectstatic / en el build de Docker)
+staticfiles/
+
+# Base de datos local de SQLite
+db.sqlite3
+db.sqlite3-journal
+
+# Logs
+*.log
+
+# Variables de entorno / secretos
+.env
+.env.*
+!.env.example
+
+# ---- Docker ----
+# (Los Dockerfile, docker-compose.yml y nginx.conf SÍ se versionan)
+
+# ---- Editores / IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- Sistema operativo ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Temporales ----
+_*.txt
+_*.log

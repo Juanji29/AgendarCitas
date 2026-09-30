@@ -1,0 +1,40 @@
+services:
+  # --- Monolito legacy (Django) ---
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: healthbook_django
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django,nginx
+      - USAR_MICROSERVICIO_NOTIFICACIONES=True
+      - NOTIFICACIONES_SERVICE_URL=http://notificaciones:5000
+      - NOTIFICACIONES_SERVICE_TIMEOUT=5
+    expose:
+      - "8000"
+    depends_on:
+      - notificaciones
+
+  # --- Microservicio estrangulado (Flask) ---
+  notificaciones:
+    build:
+      context: ./notificaciones_service
+      dockerfile: Dockerfile
+    container_name: healthbook_notificaciones
+    environment:
+      # Sin SMTP configurado, el servicio degrada a modo consola (logs).
+      - FROM_EMAIL=no-reply@healthbook.local
+    expose:
+      - "5000"
+
+  # --- Orquestador de tráfico (Nginx) ---
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: healthbook_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - django
+      - notificaciones

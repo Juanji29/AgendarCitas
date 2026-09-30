@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-06uzer#^+v&t&!m@_#whyzqa!suqzco$5#jg%@_$t2&b@kdh++
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+import os  # noqa: E402
+
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,django,web').split(',')
 
 
 # Application definition
@@ -43,6 +45,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise sirve los archivos estáticos directamente desde gunicorn
+    # (necesario porque en producción runserver no está activo).
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,6 +92,18 @@ DATABASES = {
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 NOTIFICAR_POR_EMAIL = True
 
+# --- Strangler Pattern: microservicio de Notificaciones (Flask) ---
+# Cuando USAR_MICROSERVICIO_NOTIFICACIONES=True, el monolito delega el envío
+# de notificaciones al microservicio Flask vía HTTP en lugar de enviarlas él
+# mismo. La URL apunta al nombre del servicio en docker-compose.
+USAR_MICROSERVICIO_NOTIFICACIONES = os.getenv(
+    'USAR_MICROSERVICIO_NOTIFICACIONES', 'True'
+).lower() in ('1', 'true', 'yes')
+NOTIFICACIONES_SERVICE_URL = os.getenv(
+    'NOTIFICACIONES_SERVICE_URL', 'http://notificaciones:5000'
+)
+NOTIFICACIONES_SERVICE_TIMEOUT = int(os.getenv('NOTIFICACIONES_SERVICE_TIMEOUT', '5'))
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -123,7 +140,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Carpeta donde collectstatic reúne los estáticos para producción.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise sirve los estáticos comprimidos y con cache busting.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
