@@ -8,7 +8,7 @@ services:
     environment:
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django,nginx
       - USAR_MICROSERVICIO_NOTIFICACIONES=True
-      - NOTIFICACIONES_SERVICE_URL=http://notificaciones:5000
+      - NOTIFICACIONES_SERVICE_URL=http://nginx
       - NOTIFICACIONES_SERVICE_TIMEOUT=5
     expose:
       - "8000"

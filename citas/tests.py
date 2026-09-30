@@ -1,4 +1,7 @@
 from datetime import date, time, timedelta
+import json
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -84,6 +87,40 @@ class AgendarCitaViewTests(TestCase):
 
 
 class CitaServiceTests(TestCase):
+	@patch('citas.notificaciones.urllib_request.urlopen')
+	def test_notificador_http_envia_la_notificacion_por_nginx(self, urlopen):
+		respuesta = Mock()
+		respuesta.read.return_value = b'{"enviado": true}'
+		respuesta.__enter__ = Mock(return_value=respuesta)
+		respuesta.__exit__ = Mock(return_value=False)
+		urlopen.return_value = respuesta
+		cita = SimpleNamespace(
+			paciente_nombre='Ana Gomez',
+			paciente_email='ana@example.com',
+			medico_nombre='Carlos Perez',
+			especialidad='Cardiologia',
+			fecha=date(2026, 10, 1),
+			hora=time(10, 0),
+		)
+
+		from .notificaciones import NotificadorHTTP
+		NotificadorHTTP(base_url='http://nginx').notificar_confirmacion(cita)
+
+		peticion = urlopen.call_args.args[0]
+		self.assertEqual(
+			peticion.full_url,
+			'http://nginx/api/v2/notificaciones/confirmacion',
+		)
+		self.assertEqual(peticion.get_method(), 'POST')
+		self.assertEqual(json.loads(peticion.data), {
+			'paciente_nombre': 'Ana Gomez',
+			'paciente_email': 'ana@example.com',
+			'medico_nombre': 'Carlos Perez',
+			'especialidad': 'Cardiologia',
+			'fecha': '2026-10-01',
+			'hora': '10:00:00',
+		})
+
 	def test_no_permite_agendar_citas_en_fecha_pasada(self):
 		especialidad = Especialidad.objects.create(
 			nombre='Cardiologia',

@@ -1,52 +1,208 @@
-# Agendar Citas Médicas Healthbook
+# Agendar Citas Medicas Healthbook
+
+Aplicacion web para gestionar citas medicas. El sistema conserva un monolito
+Django para la agenda y utiliza un microservicio Flask para las notificaciones
+de confirmacion.
 
 ## Participantes
-- Andrés Osorio
-- Juan Esteban Jiménez
+
+- Andres Osorio
+- Juan Esteban Jimenez
 - Juan Pablo Gaviria
 
-## Descripción
-Este proyecto consiste en una aplicación web desarrollada con Django para gestionar y mostrar citas médicas de forma sencilla. La idea principal es ofrecer una base funcional para organizar información relacionada con la agenda de pacientes y profesionales de salud.
+## Funcionalidades
 
-## Objetivo del proyecto
-El objetivo de Healthbook es crear una interfaz básica donde se puedan visualizar citas médicas y preparar la estructura para futuras mejoras, como registro de pacientes, filtros por fecha, gestión de horarios y autenticación de usuarios.
+- Registro e inicio de sesion de pacientes.
+- Consulta y agendamiento de citas.
+- Validacion de fechas y disponibilidad del medico.
+- Cancelacion de citas del paciente autenticado.
+- Envio de confirmaciones mediante el microservicio Flask.
+- Interfaz HTML servida por Django.
 
-## Funcionalidades actuales
-- Visualización de una página de citas.
-- Configuración básica de rutas en Django.
-- Uso de plantillas para presentar información en la interfaz web.
-- Estructura modular organizada en aplicaciones.
-- Lineamiento SOLID
+## Tecnologias
 
-## Tecnologías utilizadas
-- Python
-- Django
-- HTML
-- SQLite
+- Python 3.13 o compatible.
+- Django 6.0.7.
+- Flask 3.0.3.
+- Gunicorn 22.0.0.
+- Nginx 1.27.
+- Docker Compose.
+- SQLite.
 
-## Requisitos previos
-Antes de ejecutar el proyecto, asegúrate de tener instalado:
-- Python 3.x
-- Django
-- Un entorno de terminal como PowerShell, CMD o Git Bash
+## Decision de extraccion
 
-## Instalación y ejecución
-1. Abre la carpeta del proyecto en tu terminal.
-2. Asegúrate de estar dentro de la carpeta raíz del proyecto.
-3. Ejecuta el siguiente comando para iniciar el servidor:
-   ```bash
-   python manage.py runserver
-   ```
-4. Abre tu navegador y visita:
-   ```text
-   http://127.0.0.1:8000/citas/agendar
-   ```
+No todas las funcionalidades deben convertirse en microservicios. Se evaluaron
+los modulos con una escala de 1 a 5:
 
-## Estructura del proyecto
-- AgendarCitasMedicas: contiene la configuración principal del proyecto Django.
-- citas: aplicación donde se encuentran las vistas, plantillas y lógica relacionada con las citas.
-- db.sqlite3: base de datos local del proyecto.
-- manage.py: archivo principal para ejecutar comandos de Django.
+| Funcionalidad | Frecuencia de cambio | Latencia o consumo | Independencia de datos | Decision |
+| --- | ---: | ---: | ---: | --- |
+| Agendar y validar disponibilidad | 2 | 2 | 1 | Permanece en Django |
+| Consultar citas | 2 | 2 | 1 | Permanece en Django |
+| Cancelar cita | 2 | 1 | 1 | Permanece en Django |
+| Enviar confirmacion por correo | 3 | 4 | 5 | Se extrae a Flask |
 
-## Notas
-Este es un proyecto inicial y va a ampliarse con más funcionalidades en futuras versiones, como formularios de registro, administración de usuarios y visualización más avanzada de citas, asi como la creacion de las diferentes clases como paciente, medico, centro de atencion, especialidad, pago y horario
+La funcionalidad seleccionada fue el envio de notificaciones. Depende de un
+proveedor externo, puede introducir latencia y no necesita consultar
+directamente la base de datos de citas. La agenda y la validacion de
+disponibilidad permanecen en Django porque estan fuertemente acopladas a sus
+modelos y transacciones.
+
+## Arquitectura Strangler Pattern
+
+```text
+Cliente
+   |
+   v
+Nginx :80
+   |------------------------------|
+   v                              v
+Django :8000                 Flask :5000
+   |                              |
+   v                              v
+SQLite                 Servicio SMTP o consola
+```
+
+El trafico se divide por ruta:
+
+- `/api/v1/` y el resto de las rutas del monolito van a Django.
+- `/api/v2/notificaciones/` va al microservicio Flask.
+- `/api/v2/notificaciones/health` expone el healthcheck de Flask.
+
+Cuando se ejecuta con Docker Compose, Django utiliza
+`http://nginx/api/v2/notificaciones/confirmacion`. Por tanto, el flujo real de
+una notificacion es:
+
+```text
+Django -> Nginx -> Flask -> SMTP o consola
+```
+
+Si Flask no responde, Django registra el error y no cancela la cita que ya fue
+guardada.
+
+## API de notificaciones
+
+### `POST /api/v2/notificaciones/confirmacion`
+
+Recibe JSON con los campos requeridos:
+
+```json
+{
+  "paciente_nombre": "Ana Gomez",
+  "paciente_email": "ana@example.com",
+  "medico_nombre": "Carlos Perez",
+  "especialidad": "Cardiologia",
+  "fecha": "2026-10-01",
+  "hora": "10:00"
+}
+```
+
+Respuestas principales:
+
+- `200`: notificacion procesada.
+- `400`: JSON invalido o faltan campos requeridos.
+- `500`: error interno al procesar o enviar la notificacion.
+
+### `GET /api/v2/notificaciones/health`
+
+Devuelve el estado del microservicio:
+
+```json
+{
+  "status": "ok",
+  "service": "notificaciones"
+}
+```
+
+## Ejecucion local
+
+Instala las dependencias del monolito:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Para ejecutar Django localmente sin Docker, desactiva la delegacion
+temporalmente:
+
+```powershell
+$env:USAR_MICROSERVICIO_NOTIFICACIONES="False"
+python manage.py runserver
+```
+
+La aplicacion queda disponible en:
+
+```text
+http://127.0.0.1:8000/citas/agendar/
+```
+
+## Ejecucion con Docker Compose
+
+La forma recomendada para ejecutar toda la topologia es:
+
+```powershell
+docker compose up --build
+```
+
+La aplicacion queda disponible mediante Nginx en:
+
+```text
+http://localhost/citas/agendar/
+```
+
+Para comprobar la configuracion sin iniciar los servicios:
+
+```powershell
+docker compose config
+```
+
+Para detener los servicios:
+
+```powershell
+docker compose down
+```
+
+El microservicio usa modo consola cuando `SMTP_HOST` no esta configurado. Para
+usar SMTP, deben proporcionarse `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
+`SMTP_PASSWORD` y `FROM_EMAIL` al servicio `notificaciones`.
+
+## Pruebas
+
+Pruebas del microservicio Flask:
+
+```powershell
+python -m unittest discover -s notificaciones_service -p "test_*.py" -v
+```
+
+Antes de ejecutar las pruebas de Django, genera los archivos estaticos:
+
+```powershell
+python manage.py collectstatic --noinput
+python manage.py test citas --verbosity 2
+```
+
+Las pruebas cubren:
+
+- Respuesta `200` de la API Flask.
+- Respuesta `400` para payload invalido.
+- Respuesta `500` para errores internos.
+- Comunicacion de Django hacia Flask a traves de Nginx.
+- Flujo de agendamiento, consulta y cancelacion de citas.
+
+## Base de datos
+
+Actualmente el proyecto utiliza SQLite en `db.sqlite3`. La base de datos no es
+un servicio independiente de Docker y no fue migrada a PostgreSQL en esta
+iteracion. Separarla requiere una migracion de datos y una decision sobre
+persistencia y operacion, por lo que queda como evolucion futura.
+
+## Estructura relevante
+
+- `AgendarCitasMedicas/`: configuracion principal de Django.
+- `citas/`: modelos, formularios, vistas y servicios de citas.
+- `notificaciones_service/`: API Flask y su Dockerfile independiente.
+- `nginx.conf`: enrutamiento entre Django y Flask.
+- `Dockerfile`: imagen del monolito Django.
+- `docker-compose.yml`: orquestacion de Django, Flask y Nginx.
+- `db.sqlite3`: base de datos local actual.
+- `static/`: archivos estaticos fuente.
+- `staticfiles/`: archivos generados por `collectstatic`.
