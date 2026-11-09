@@ -1,0 +1,10 @@
+<form action="{% url 'set_language' %}" method="post" class="language-selector">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <label for="language-choice">Idioma</label>
+    <select id="language-choice" name="language">
+        <option value="es"{% if request.LANGUAGE_CODE == 'es' %} selected{% endif %}>Español</option>
+        <option value="en"{% if request.LANGUAGE_CODE == 'en' %} selected{% endif %}>English</option>
+    </select>
+    <button type="submit">Cambiar</button>
+</form>
