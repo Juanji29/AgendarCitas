@@ -4,7 +4,7 @@ from django.utils import timezone
 from .builders import CitaBuilder
 from .exceptions import ConflictError, DomainValidationError, NotFoundError
 from .factories import NotificadorFactory
-from .models import Cita
+from .models import Cita, Especialidad
 
 
 class CitaService:
@@ -42,6 +42,10 @@ class CitaService:
         ).exclude(
             estado=Cita.ESTADO_CANCELADA,
         ).select_related('especialidad').order_by('fecha', 'hora')
+
+    @staticmethod
+    def obtener_especialidades():
+        return Especialidad.objects.filter(activa=True)
 
     @staticmethod
     def cancelar_cita(cita_id, correo):

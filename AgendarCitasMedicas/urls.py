@@ -21,6 +21,7 @@ from django.urls import include, path
 urlpatterns = [
     path('', lambda request: redirect('usuarios:login')),
     path('admin/', admin.site.urls),
+    path('api/v1/', include('citas.api_urls')),
     path('citas/', include('citas.urls')),
     path('usuarios/', include('usuarios.urls')),
 ]
