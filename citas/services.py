@@ -1,10 +1,13 @@
 from django.core.exceptions import ValidationError
+from django.db.models import Value
+from django.db.models.functions import Concat
 from django.utils import timezone
 
 from .builders import CitaBuilder
 from .exceptions import ConflictError, DomainValidationError, NotFoundError
 from .factories import NotificadorFactory
 from .models import Cita, Especialidad
+from usuarios.models import Medico
 
 
 class CitaService:
@@ -26,6 +29,17 @@ class CitaService:
             raise DomainValidationError(str(error)) from error
 
         CitaService._validar_fecha(cita)
+
+        if not Medico.objects.annotate(
+            nombre_completo=Concat('nombre', Value(' '), 'apellido'),
+        ).filter(
+            nombre_completo=datos['medico_nombre'],
+            especialidades=datos['especialidad'],
+        ).exists():
+            raise DomainValidationError(
+                'El médico seleccionado no está asociado a esta especialidad.'
+            )
+
         CitaService._validar_disponibilidad(cita)
 
         cita.save()
@@ -46,6 +60,12 @@ class CitaService:
     @staticmethod
     def obtener_especialidades():
         return Especialidad.objects.filter(activa=True)
+
+    @staticmethod
+    def obtener_medicos(especialidad_id):
+        return Medico.objects.filter(
+            especialidades__id=especialidad_id,
+        ).order_by('apellido', 'nombre').distinct()
 
     @staticmethod
     def cancelar_cita(cita_id, correo):

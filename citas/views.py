@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from django.views import View
 
 from .forms import CitaForm
+from .exceptions import DomainValidationError
 from usuarios.models import Paciente
 from .services import CitaService
 
@@ -36,7 +37,7 @@ class AgendarCitaView(View):
 
         try:
             CitaService.agendar_cita(form.cleaned_data)
-        except ValidationError as error:
+        except (ValidationError, DomainValidationError) as error:
             form.add_error(None, error)
             return render(request, self.template_name, {'form': form})
 

@@ -7,7 +7,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from .models import Cita, Especialidad
-from usuarios.models import Paciente
+from usuarios.models import Medico, Paciente
 
 
 class AppointmentAPITests(APITestCase):
@@ -22,6 +22,15 @@ class AppointmentAPITests(APITestCase):
             nombre='Cardiologia',
             duracion_minutos=30,
         )
+        self.doctor = Medico.objects.create(
+            nombre='Carlos',
+            apellido='Perez',
+            dni='987654321',
+            correo='carlos@example.com',
+            telefono='3009876543',
+            registro_medico='RM-001',
+        )
+        self.doctor.especialidades.add(self.specialty)
         self.appointment_url = reverse('api_v1:citas')
 
     def appointment_payload(self, **overrides):
@@ -62,12 +71,59 @@ class AppointmentAPITests(APITestCase):
         self.assertEqual(response.data['error'], 'validation_error')
         self.assertIn('fecha', response.data['detail'])
 
+    def test_list_doctors_filters_by_specialty(self):
+        other_specialty = Especialidad.objects.create(
+            nombre='Pediatria',
+            duracion_minutos=25,
+        )
+        other_doctor = Medico.objects.create(
+            nombre='Maria',
+            apellido='Lopez',
+            dni='123456789',
+            correo='maria@example.com',
+            telefono='3001234567',
+            registro_medico='RM-002',
+        )
+        other_doctor.especialidades.add(other_specialty)
+
+        response = self.client.get(
+            reverse('api_v1:medicos'),
+            {'especialidad': self.specialty.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [doctor['id'] for doctor in response.data['data']],
+            [self.doctor.pk],
+        )
+
+    def test_list_doctors_requires_a_valid_specialty_id(self):
+        response = self.client.get(reverse('api_v1:medicos'))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['error'], 'validation_error')
+
     def test_business_validation_error_returns_400(self):
         payload = self.appointment_payload(
             fecha=(timezone.localdate() - timedelta(days=1)).isoformat(),
         )
 
         response = self.client.post(self.appointment_url, payload, format='json')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['error'], 'validation_error')
+
+    def test_doctor_must_be_associated_with_selected_specialty(self):
+        other_specialty = Especialidad.objects.create(
+            nombre='Pediatria',
+            duracion_minutos=25,
+        )
+
+        response = self.client.post(
+            self.appointment_url,
+            self.appointment_payload(especialidad=other_specialty.pk),
+            format='json',
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['error'], 'validation_error')

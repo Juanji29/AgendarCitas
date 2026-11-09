@@ -11,6 +11,8 @@ from .exceptions import ConflictError, DomainValidationError, NotFoundError
 from .serializers import (
     AppointmentCreateSerializer,
     AppointmentSerializer,
+    DoctorListQuerySerializer,
+    DoctorSerializer,
     SpecialtySerializer,
 )
 from .services import CitaService
@@ -29,6 +31,24 @@ class SpecialtyListAPIView(APIView):
     def get(self, request):
         specialties = CitaService.obtener_especialidades()
         return Response({'data': SpecialtySerializer(specialties, many=True).data})
+
+
+class DoctorListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        query_serializer = DoctorListQuerySerializer(data=request.query_params)
+        if not query_serializer.is_valid():
+            return _error_response(
+                'validation_error',
+                query_serializer.errors,
+                status.HTTP_400_BAD_REQUEST,
+            )
+
+        doctors = CitaService.obtener_medicos(
+            query_serializer.validated_data['especialidad'],
+        )
+        return Response({'data': DoctorSerializer(doctors, many=True).data})
 
 
 class AppointmentListCreateAPIView(APIView):

@@ -29,7 +29,11 @@ class AgendarCitaViewTests(TestCase):
 		)
 
 	def test_get_muestra_medicos_de_la_base_de_datos(self):
-		Medico.objects.create(
+		especialidad = Especialidad.objects.create(
+			nombre='Cardiologia',
+			duracion_minutos=30,
+		)
+		medico = Medico.objects.create(
 			nombre='Carlos',
 			apellido='Perez',
 			dni='987654321',
@@ -37,11 +41,12 @@ class AgendarCitaViewTests(TestCase):
 			telefono='3009876543',
 			registro_medico='RM-001',
 		)
+		medico.especialidades.add(especialidad)
 
 		response = self.client.get('/citas/agendar/')
 
-		self.assertContains(response, 'Carlos Perez')
-		self.assertContains(response, 'Seleccione un médico')
+		self.assertContains(response, '/api/v1/medicos/')
+		self.assertContains(response, 'Selecciona una especialidad')
 
 	def test_get_prefills_authenticated_patient_data(self):
 		self.client.force_login(self.usuario)
@@ -144,6 +149,15 @@ class CitaServiceTests(TestCase):
 
 	def test_conflicting_appointment_raises_conflict_error(self):
 		especialidad = Especialidad.objects.create(nombre='Cardiologia', duracion_minutos=30)
+		medico = Medico.objects.create(
+			nombre='Carlos',
+			apellido='Perez',
+			dni='987654321',
+			correo='carlos@example.com',
+			telefono='3009876543',
+			registro_medico='RM-001',
+		)
+		medico.especialidades.add(especialidad)
 		Cita.objects.create(
 			paciente_nombre='Otra Persona',
 			medico_nombre='Carlos Perez',

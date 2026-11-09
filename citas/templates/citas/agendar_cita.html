@@ -50,8 +50,9 @@
                         </div>
                     </div>
 
-                    {{ form.medico_nombre.as_field_group }}
                     {{ form.especialidad.as_field_group }}
+                    {{ form.medico_nombre.as_field_group }}
+                    <p id="doctor-status" role="status" aria-live="polite"></p>
                     {{ form.fecha.as_field_group }}
                     {{ form.hora.as_field_group }}
                     {{ form.motivo.as_field_group }}
@@ -94,5 +95,58 @@
             </section>
         </div>
     </main>
+    <script>
+        const specialtySelect = document.getElementById('id_especialidad');
+        const doctorSelect = document.getElementById('id_medico_nombre');
+        const doctorStatus = document.getElementById('doctor-status');
+        const initialDoctorId = doctorSelect.value;
+
+        async function loadDoctors() {
+            const specialtyId = specialtySelect.value;
+            doctorSelect.replaceChildren(new Option('Seleccione un médico', ''));
+            doctorSelect.disabled = true;
+
+            if (!specialtyId) {
+                doctorStatus.textContent = 'Selecciona una especialidad para ver los médicos disponibles.';
+                return;
+            }
+
+            doctorStatus.textContent = 'Cargando médicos...';
+
+            try {
+                const response = await fetch(
+                    `/api/v1/medicos/?especialidad=${encodeURIComponent(specialtyId)}`,
+                    {headers: {'Accept': 'application/json'}}
+                );
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.detail || 'No se pudieron cargar los médicos.');
+                }
+
+                for (const doctor of result.data) {
+                    const option = new Option(
+                        `${doctor.nombre} ${doctor.apellido}`,
+                        doctor.id
+                    );
+                    doctorSelect.add(option);
+                }
+
+                doctorSelect.disabled = result.data.length === 0;
+                doctorStatus.textContent = result.data.length
+                    ? 'Selecciona un médico.'
+                    : 'No hay médicos registrados para esta especialidad.';
+
+                if (result.data.some(doctor => String(doctor.id) === initialDoctorId)) {
+                    doctorSelect.value = initialDoctorId;
+                }
+            } catch (error) {
+                doctorStatus.textContent = error.message;
+            }
+        }
+
+        specialtySelect.addEventListener('change', loadDoctors);
+        loadDoctors();
+    </script>
 </body>
 </html>

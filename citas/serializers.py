@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Cita, Especialidad
+from usuarios.models import Medico
 
 
 class SpecialtySerializer(serializers.ModelSerializer):
@@ -14,6 +15,17 @@ class SpecialtySerializer(serializers.ModelSerializer):
             'activa',
         )
         read_only_fields = fields
+
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Medico
+        fields = ('id', 'nombre', 'apellido')
+        read_only_fields = fields
+
+
+class DoctorListQuerySerializer(serializers.Serializer):
+    especialidad = serializers.IntegerField(min_value=1)
 
 
 class AppointmentCreateSerializer(serializers.Serializer):

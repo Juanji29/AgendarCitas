@@ -20,5 +20,9 @@ class Paciente(Persona):
 
 class Medico(Persona):
     registro_medico = models.CharField(max_length=100)
-
+    especialidades = models.ManyToManyField(
+        'citas.Especialidad',
+        related_name='medicos',
+        blank=True,
+    )
 
