@@ -1,0 +1,281 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AgendarCitas\n"
+"POT-Creation-Date: 2026-11-09 17:53-0500\n"
+"PO-Revision-Date: 2026-11-09 18:00-0500\n"
+"Last-Translator: AgendarCitas Team\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: .\citas\api_views.py:137
+msgid "Ya existe una cuenta con esos datos."
+msgstr "An account with those details already exists."
+
+#: .\citas\forms.py:12 .\citas\serializers.py:57 .\citas\serializers.py:91
+msgid "Médico"
+msgstr "Doctor"
+
+#: .\citas\forms.py:13 .\citas\templates\citas\agendar_cita.html:99
+msgid "Seleccione un médico"
+msgstr "Select a doctor"
+
+#: .\citas\forms.py:28 .\citas\serializers.py:49 .\citas\serializers.py:89
+msgid "Nombre del paciente"
+msgstr "Patient name"
+
+#: .\citas\forms.py:29 .\citas\serializers.py:53 .\citas\serializers.py:90
+msgid "Correo electrónico del paciente"
+msgstr "Patient email address"
+
+#: .\citas\forms.py:30 .\citas\serializers.py:42 .\citas\serializers.py:59
+msgid "Especialidad"
+msgstr "Specialty"
+
+#: .\citas\forms.py:31 .\citas\serializers.py:62 .\citas\serializers.py:92
+msgid "Fecha"
+msgstr "Date"
+
+#: .\citas\forms.py:32 .\citas\serializers.py:63 .\citas\serializers.py:93
+msgid "Hora"
+msgstr "Time"
+
+#: .\citas\forms.py:33 .\citas\serializers.py:64 .\citas\serializers.py:94
+msgid "Motivo"
+msgstr "Reason"
+
+#: .\citas\models.py:13
+msgid "Especialidades"
+msgstr "Specialties"
+
+#: .\citas\models.py:24
+msgid "Pendiente"
+msgstr "Pending"
+
+#: .\citas\models.py:25
+msgid "Confirmada"
+msgstr "Confirmed"
+
+#: .\citas\models.py:26
+msgid "Cancelada"
+msgstr "Cancelled"
+
+#: .\citas\notificaciones.py:27
+#, python-format
+msgid ""
+"Hola %(paciente)s, tu cita con %(medico)s (%(especialidad)s) quedó agendada "
+"para el %(fecha)s a las %(hora)s."
+msgstr ""
+"Hello %(paciente)s, your appointment with %(medico)s (%(especialidad)s) has "
+"been scheduled for %(fecha)s at %(hora)s."
+
+#: .\citas\notificaciones.py:37
+msgid "Confirmación de cita médica"
+msgstr "Medical appointment confirmation"
+
+#: .\citas\serializers.py:20 .\citas\serializers.py:34
+#: .\citas\serializers.py:88 .\usuarios\serializers.py:38
+#: .\usuarios\serializers.py:48
+msgid "ID"
+msgstr "ID"
+
+#: .\citas\serializers.py:21 .\citas\serializers.py:35 .\usuarios\forms.py:13
+#: .\usuarios\serializers.py:8 .\usuarios\serializers.py:39
+#: .\usuarios\serializers.py:51
+msgid "Nombre"
+msgstr "First name"
+
+#: .\citas\serializers.py:22 .\citas\serializers.py:95
+msgid "Duración en minutos"
+msgstr "Duration in minutes"
+
+#: .\citas\serializers.py:23 .\citas\serializers.py:96
+msgid "Requiere referido"
+msgstr "Referral required"
+
+#: .\citas\serializers.py:24
+msgid "Activa"
+msgstr "Active"
+
+#: .\citas\serializers.py:36 .\usuarios\forms.py:14 .\usuarios\serializers.py:9
+#: .\usuarios\serializers.py:40 .\usuarios\serializers.py:52
+msgid "Apellido"
+msgstr "Last name"
+
+#: .\citas\serializers.py:97
+msgid "Estado"
+msgstr "Status"
+
+#: .\citas\serializers.py:98
+msgid "Creada en"
+msgstr "Created at"
+
+#: .\citas\services.py:41
+msgid "El médico seleccionado no está asociado a esta especialidad."
+msgstr "The selected doctor is not associated with this specialty."
+
+#: .\citas\services.py:80
+msgid "La cita no existe o no pertenece al paciente."
+msgstr "The appointment does not exist or does not belong to the patient."
+
+#: .\citas\services.py:84
+msgid "La cita ya está cancelada."
+msgstr "The appointment has already been cancelled."
+
+#: .\citas\services.py:94
+msgid "No se pueden agendar citas en fechas pasadas."
+msgstr "Appointments cannot be scheduled for dates in the past."
+
+#: .\citas\services.py:107
+msgid "El médico ya tiene una cita agendada en ese horario."
+msgstr "The doctor already has an appointment scheduled for that time."
+
+#: .\citas\templates\citas\agendar_cita.html:7
+#: .\citas\templates\citas\agendar_cita.html:26
+msgid "Agendar cita"
+msgstr "Schedule an appointment"
+
+#: .\citas\templates\citas\agendar_cita.html:20
+msgid "Cerrar sesión"
+msgstr "Log out"
+
+#: .\citas\templates\citas\agendar_cita.html:45
+msgid "Paciente"
+msgstr "Patient"
+
+#: .\citas\templates\citas\agendar_cita.html:46
+#: .\citas\templates\citas\agendar_cita.html:50
+msgid "No disponible"
+msgstr "Not available"
+
+#: .\citas\templates\citas\agendar_cita.html:49
+msgid "Correo"
+msgstr "Email"
+
+#: .\citas\templates\citas\agendar_cita.html:61
+msgid "Agendar"
+msgstr "Schedule"
+
+#: .\citas\templates\citas\agendar_cita.html:69
+msgid "Mis citas"
+msgstr "My appointments"
+
+#: .\citas\templates\citas\agendar_cita.html:84
+msgid "Dr."
+msgstr "Dr."
+
+#: .\citas\templates\citas\agendar_cita.html:88
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: .\citas\templates\citas\agendar_cita.html:94
+msgid "Aún no tienes citas agendadas. Cuando agendes una, aparecerá aquí."
+msgstr "You have no appointments yet. Once you schedule one, it will appear here."
+
+#: .\citas\templates\citas\agendar_cita.html:100
+msgid "Selecciona una especialidad para ver los médicos disponibles."
+msgstr "Select a specialty to see the available doctors."
+
+#: .\citas\templates\citas\agendar_cita.html:101
+msgid "Cargando médicos..."
+msgstr "Loading doctors..."
+
+#: .\citas\templates\citas\agendar_cita.html:102
+msgid "No se pudieron cargar los médicos."
+msgstr "Could not load the doctors."
+
+#: .\citas\templates\citas\agendar_cita.html:103
+msgid "Selecciona un médico."
+msgstr "Select a doctor."
+
+#: .\citas\templates\citas\agendar_cita.html:104
+msgid "No hay médicos registrados para esta especialidad."
+msgstr "There are no doctors registered for this specialty."
+
+#: .\citas\templates\citas\cita_agendada.html:7
+msgid "Cita agendada"
+msgstr "Appointment scheduled"
+
+#: .\citas\templates\citas\cita_agendada.html:28
+msgid "¡Tu cita fue agendada correctamente!"
+msgstr "Your appointment was scheduled successfully!"
+
+#: .\citas\templates\citas\cita_agendada.html:31
+msgid "Agendar otra cita"
+msgstr "Schedule another appointment"
+
+#: .\citas\templates\shared\language_selector.html:5
+msgid "Idioma"
+msgstr "Language"
+
+#: .\citas\templates\shared\language_selector.html:10
+msgid "Cambiar"
+msgstr "Change"
+
+#: .\usuarios\forms.py:9 .\usuarios\forms.py:16 .\usuarios\serializers.py:11
+#: .\usuarios\serializers.py:42 .\usuarios\serializers.py:50
+msgid "Correo electrónico"
+msgstr "Email address"
+
+#: .\usuarios\forms.py:15 .\usuarios\serializers.py:10
+#: .\usuarios\serializers.py:41
+msgid "Documento"
+msgstr "Identification number"
+
+#: .\usuarios\forms.py:17 .\usuarios\serializers.py:12
+#: .\usuarios\serializers.py:43
+msgid "Teléfono"
+msgstr "Phone"
+
+#: .\usuarios\forms.py:18 .\usuarios\serializers.py:14
+msgid "Contraseña"
+msgstr "Password"
+
+#: .\usuarios\forms.py:19 .\usuarios\serializers.py:19
+msgid "Confirmar contraseña"
+msgstr "Confirm password"
+
+#: .\usuarios\forms.py:24
+msgid "Ya existe una cuenta con este correo."
+msgstr "An account with this email already exists."
+
+#: .\usuarios\forms.py:32 .\usuarios\serializers.py:27
+msgid "Las contraseñas no coinciden."
+msgstr "The passwords do not match."
+
+#: .\usuarios\serializers.py:49
+msgid "Nombre de usuario"
+msgstr "Username"
+
+#: .\usuarios\templates\usuarios\login.html:7
+#: .\usuarios\templates\usuarios\login.html:20
+#: .\usuarios\templates\usuarios\login.html:25
+msgid "Iniciar sesión"
+msgstr "Log in"
+
+#: .\usuarios\templates\usuarios\login.html:29
+msgid "¿No tienes una cuenta?"
+msgstr "Don't have an account?"
+
+#: .\usuarios\templates\usuarios\login.html:30
+msgid "Regístrate aquí"
+msgstr "Sign up here"
+
+#: .\usuarios\templates\usuarios\registro.html:7
+#: .\usuarios\templates\usuarios\registro.html:20
+msgid "Crear cuenta"
+msgstr "Create account"
+
+#: .\usuarios\templates\usuarios\registro.html:25
+msgid "Registrarse"
+msgstr "Sign up"
+
+#: .\usuarios\templates\usuarios\registro.html:29
+msgid "¿Ya tienes una cuenta?"
+msgstr "Already have an account?"
+
+#: .\usuarios\templates\usuarios\registro.html:30
+msgid "Inicia sesión"
+msgstr "Log in"

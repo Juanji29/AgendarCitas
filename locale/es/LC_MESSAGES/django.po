@@ -1,0 +1,279 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AgendarCitas\n"
+"POT-Creation-Date: 2026-11-09 17:53-0500\n"
+"PO-Revision-Date: 2026-11-09 18:00-0500\n"
+"Last-Translator: AgendarCitas Team\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: .\citas\api_views.py:137
+msgid "Ya existe una cuenta con esos datos."
+msgstr ""
+
+#: .\citas\forms.py:12 .\citas\serializers.py:57 .\citas\serializers.py:91
+msgid "Médico"
+msgstr ""
+
+#: .\citas\forms.py:13 .\citas\templates\citas\agendar_cita.html:99
+msgid "Seleccione un médico"
+msgstr ""
+
+#: .\citas\forms.py:28 .\citas\serializers.py:49 .\citas\serializers.py:89
+msgid "Nombre del paciente"
+msgstr ""
+
+#: .\citas\forms.py:29 .\citas\serializers.py:53 .\citas\serializers.py:90
+msgid "Correo electrónico del paciente"
+msgstr ""
+
+#: .\citas\forms.py:30 .\citas\serializers.py:42 .\citas\serializers.py:59
+msgid "Especialidad"
+msgstr ""
+
+#: .\citas\forms.py:31 .\citas\serializers.py:62 .\citas\serializers.py:92
+msgid "Fecha"
+msgstr ""
+
+#: .\citas\forms.py:32 .\citas\serializers.py:63 .\citas\serializers.py:93
+msgid "Hora"
+msgstr ""
+
+#: .\citas\forms.py:33 .\citas\serializers.py:64 .\citas\serializers.py:94
+msgid "Motivo"
+msgstr ""
+
+#: .\citas\models.py:13
+msgid "Especialidades"
+msgstr ""
+
+#: .\citas\models.py:24
+msgid "Pendiente"
+msgstr ""
+
+#: .\citas\models.py:25
+msgid "Confirmada"
+msgstr ""
+
+#: .\citas\models.py:26
+msgid "Cancelada"
+msgstr ""
+
+#: .\citas\notificaciones.py:27
+#, python-format
+msgid ""
+"Hola %(paciente)s, tu cita con %(medico)s (%(especialidad)s) quedó agendada "
+"para el %(fecha)s a las %(hora)s."
+msgstr ""
+
+#: .\citas\notificaciones.py:37
+msgid "Confirmación de cita médica"
+msgstr ""
+
+#: .\citas\serializers.py:20 .\citas\serializers.py:34
+#: .\citas\serializers.py:88 .\usuarios\serializers.py:38
+#: .\usuarios\serializers.py:48
+msgid "ID"
+msgstr ""
+
+#: .\citas\serializers.py:21 .\citas\serializers.py:35 .\usuarios\forms.py:13
+#: .\usuarios\serializers.py:8 .\usuarios\serializers.py:39
+#: .\usuarios\serializers.py:51
+msgid "Nombre"
+msgstr ""
+
+#: .\citas\serializers.py:22 .\citas\serializers.py:95
+msgid "Duración en minutos"
+msgstr ""
+
+#: .\citas\serializers.py:23 .\citas\serializers.py:96
+msgid "Requiere referido"
+msgstr ""
+
+#: .\citas\serializers.py:24
+msgid "Activa"
+msgstr ""
+
+#: .\citas\serializers.py:36 .\usuarios\forms.py:14 .\usuarios\serializers.py:9
+#: .\usuarios\serializers.py:40 .\usuarios\serializers.py:52
+msgid "Apellido"
+msgstr ""
+
+#: .\citas\serializers.py:97
+msgid "Estado"
+msgstr ""
+
+#: .\citas\serializers.py:98
+msgid "Creada en"
+msgstr ""
+
+#: .\citas\services.py:41
+msgid "El médico seleccionado no está asociado a esta especialidad."
+msgstr ""
+
+#: .\citas\services.py:80
+msgid "La cita no existe o no pertenece al paciente."
+msgstr ""
+
+#: .\citas\services.py:84
+msgid "La cita ya está cancelada."
+msgstr ""
+
+#: .\citas\services.py:94
+msgid "No se pueden agendar citas en fechas pasadas."
+msgstr ""
+
+#: .\citas\services.py:107
+msgid "El médico ya tiene una cita agendada en ese horario."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:7
+#: .\citas\templates\citas\agendar_cita.html:26
+msgid "Agendar cita"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:20
+msgid "Cerrar sesión"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:45
+msgid "Paciente"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:46
+#: .\citas\templates\citas\agendar_cita.html:50
+msgid "No disponible"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:49
+msgid "Correo"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:61
+msgid "Agendar"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:69
+msgid "Mis citas"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:84
+msgid "Dr."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:88
+msgid "Cancelar"
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:94
+msgid "Aún no tienes citas agendadas. Cuando agendes una, aparecerá aquí."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:100
+msgid "Selecciona una especialidad para ver los médicos disponibles."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:101
+msgid "Cargando médicos..."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:102
+msgid "No se pudieron cargar los médicos."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:103
+msgid "Selecciona un médico."
+msgstr ""
+
+#: .\citas\templates\citas\agendar_cita.html:104
+msgid "No hay médicos registrados para esta especialidad."
+msgstr ""
+
+#: .\citas\templates\citas\cita_agendada.html:7
+msgid "Cita agendada"
+msgstr ""
+
+#: .\citas\templates\citas\cita_agendada.html:28
+msgid "¡Tu cita fue agendada correctamente!"
+msgstr ""
+
+#: .\citas\templates\citas\cita_agendada.html:31
+msgid "Agendar otra cita"
+msgstr ""
+
+#: .\citas\templates\shared\language_selector.html:5
+msgid "Idioma"
+msgstr ""
+
+#: .\citas\templates\shared\language_selector.html:10
+msgid "Cambiar"
+msgstr ""
+
+#: .\usuarios\forms.py:9 .\usuarios\forms.py:16 .\usuarios\serializers.py:11
+#: .\usuarios\serializers.py:42 .\usuarios\serializers.py:50
+msgid "Correo electrónico"
+msgstr ""
+
+#: .\usuarios\forms.py:15 .\usuarios\serializers.py:10
+#: .\usuarios\serializers.py:41
+msgid "Documento"
+msgstr ""
+
+#: .\usuarios\forms.py:17 .\usuarios\serializers.py:12
+#: .\usuarios\serializers.py:43
+msgid "Teléfono"
+msgstr ""
+
+#: .\usuarios\forms.py:18 .\usuarios\serializers.py:14
+msgid "Contraseña"
+msgstr ""
+
+#: .\usuarios\forms.py:19 .\usuarios\serializers.py:19
+msgid "Confirmar contraseña"
+msgstr ""
+
+#: .\usuarios\forms.py:24
+msgid "Ya existe una cuenta con este correo."
+msgstr ""
+
+#: .\usuarios\forms.py:32 .\usuarios\serializers.py:27
+msgid "Las contraseñas no coinciden."
+msgstr ""
+
+#: .\usuarios\serializers.py:49
+msgid "Nombre de usuario"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\login.html:7
+#: .\usuarios\templates\usuarios\login.html:20
+#: .\usuarios\templates\usuarios\login.html:25
+msgid "Iniciar sesión"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\login.html:29
+msgid "¿No tienes una cuenta?"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\login.html:30
+msgid "Regístrate aquí"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\registro.html:7
+#: .\usuarios\templates\usuarios\registro.html:20
+msgid "Crear cuenta"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\registro.html:25
+msgid "Registrarse"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\registro.html:29
+msgid "¿Ya tienes una cuenta?"
+msgstr ""
+
+#: .\usuarios\templates\usuarios\registro.html:30
+msgid "Inicia sesión"
+msgstr ""

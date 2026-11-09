@@ -38,6 +38,21 @@ class NotificacionesApiTests(unittest.TestCase):
         self.assertIn('Hola Ana Gomez', respuesta.json['mensaje'])
 
     @patch('app._enviar_email', return_value='email')
+    def test_idioma_ingles_traduce_asunto_y_cuerpo(self, enviar_email):
+        respuesta = self.client.post(
+            '/api/v2/notificaciones/confirmacion',
+            json={**self.payload, 'idioma': 'en'},
+        )
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertIn('Hello Ana Gomez', respuesta.json['mensaje'])
+        self.assertIn('your appointment with Carlos Perez', respuesta.json['mensaje'])
+        self.assertEqual(
+            enviar_email.call_args.args[1],
+            'Medical appointment confirmation',
+        )
+
+    @patch('app._enviar_email', return_value='email')
     @patch('app._obtener_traductor')
     def test_idioma_selecciona_traduccion_para_asunto_y_cuerpo(
         self,
