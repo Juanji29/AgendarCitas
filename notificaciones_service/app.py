@@ -7,7 +7,9 @@ por JSON y se encarga de generar/enviar la notificación de confirmación.
 import logging
 import os
 import smtplib
+from gettext import translation
 from email.mime.text import MIMEText
+from pathlib import Path
 
 from flask import Flask, jsonify, request
 
@@ -23,6 +25,7 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "25"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "no-reply@healthbook.local")
+LOCALE_DIR = Path(__file__).resolve().parent / "locale"
 
 CAMPOS_REQUERIDOS = [
     "paciente_nombre",
@@ -48,12 +51,23 @@ def _validar_payload(datos):
         )
 
 
-def _construir_mensaje(datos):
-    return (
-        f"Hola {datos['paciente_nombre']}, tu cita con {datos['medico_nombre']} "
-        f"({datos['especialidad']}) quedó agendada para el {datos['fecha']} "
-        f"a las {datos['hora']}."
+def _obtener_traductor(idioma):
+    if idioma not in ("es", "en"):
+        idioma = "es"
+    return translation(
+        "messages",
+        localedir=LOCALE_DIR,
+        languages=[idioma],
+        fallback=True,
+    ).gettext
+
+
+def _construir_mensaje(datos, traducir):
+    plantilla = traducir(
+        "Hola %(paciente_nombre)s, tu cita con %(medico_nombre)s "
+        "(%(especialidad)s) quedó agendada para el %(fecha)s a las %(hora)s."
     )
+    return plantilla % datos
 
 
 def _enviar_email(destinatario, asunto, cuerpo):
@@ -87,8 +101,9 @@ def notificar_confirmacion():
     datos = request.get_json(silent=True)
     _validar_payload(datos)
 
-    asunto = "Confirmación de cita médica"
-    cuerpo = _construir_mensaje(datos)
+    traducir = _obtener_traductor(datos.get("idioma", "es"))
+    asunto = traducir("Confirmación de cita médica")
+    cuerpo = _construir_mensaje(datos, traducir)
     destinatario = datos.get("paciente_email", "")
 
     if not destinatario:

@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.utils.translation import override
 
 from .services import CitaService
 from .exceptions import ConflictError, DomainValidationError, NotFoundError
@@ -124,7 +125,31 @@ class CitaServiceTests(TestCase):
 			'especialidad': 'Cardiologia',
 			'fecha': '2026-10-01',
 			'hora': '10:00:00',
+			'idioma': 'es',
 		})
+
+	@patch('citas.notificaciones.urllib_request.urlopen')
+	def test_notificador_http_envia_el_idioma_activo(self, urlopen):
+		respuesta = Mock()
+		respuesta.read.return_value = b'{"enviado": true}'
+		respuesta.__enter__ = Mock(return_value=respuesta)
+		respuesta.__exit__ = Mock(return_value=False)
+		urlopen.return_value = respuesta
+		cita = SimpleNamespace(
+			paciente_nombre='Ana Gomez',
+			paciente_email='ana@example.com',
+			medico_nombre='Carlos Perez',
+			especialidad='Cardiologia',
+			fecha=date(2026, 10, 1),
+			hora=time(10, 0),
+		)
+
+		from .notificaciones import NotificadorHTTP
+		with override('en'):
+			NotificadorHTTP(base_url='http://nginx').notificar_confirmacion(cita)
+
+		payload = json.loads(urlopen.call_args.args[0].data)
+		self.assertEqual(payload['idioma'], 'en')
 
 	def test_no_permite_agendar_citas_en_fecha_pasada(self):
 		especialidad = Especialidad.objects.create(

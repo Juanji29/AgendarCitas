@@ -6,6 +6,7 @@ import json
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils.translation import gettext as _, get_language
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +23,19 @@ class EmailNotificador(Notificador):
     def notificar_confirmacion(self, cita):
         if not cita.paciente_email:
             return
+        message = _(
+            'Hola %(paciente)s, tu cita con %(medico)s (%(especialidad)s) '
+            'quedó agendada para el %(fecha)s a las %(hora)s.'
+        ) % {
+            'paciente': cita.paciente_nombre,
+            'medico': cita.medico_nombre,
+            'especialidad': cita.especialidad,
+            'fecha': cita.fecha,
+            'hora': cita.hora,
+        }
         send_mail(
-            subject='Confirmación de cita médica',
-            message=(
-                f'Hola {cita.paciente_nombre}, tu cita con {cita.medico_nombre} '
-                f'({cita.especialidad}) quedó agendada para el {cita.fecha} a las {cita.hora}.'
-            ),
+            subject=_('Confirmación de cita médica'),
+            message=message,
             from_email=None,
             recipient_list=[cita.paciente_email],
         )
@@ -62,6 +70,7 @@ class NotificadorHTTP(Notificador):
             'especialidad': str(cita.especialidad),
             'fecha': str(cita.fecha),
             'hora': str(cita.hora),
+            'idioma': (get_language() or 'es').split('-')[0],
         }
         url = f'{self._base_url}/api/v2/notificaciones/confirmacion'
         datos = json.dumps(payload).encode('utf-8')

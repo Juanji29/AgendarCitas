@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Especialidad(models.Model):
@@ -9,7 +10,7 @@ class Especialidad(models.Model):
 
     class Meta:
         ordering = ['nombre']
-        verbose_name_plural = 'Especialidades'
+        verbose_name_plural = _('Especialidades')
 
     def __str__(self):
         return self.nombre
@@ -20,9 +21,9 @@ class Cita(models.Model):
     ESTADO_CONFIRMADA = 'confirmada'
     ESTADO_CANCELADA = 'cancelada'
     ESTADO_CHOICES = [
-        (ESTADO_PENDIENTE, 'Pendiente'),
-        (ESTADO_CONFIRMADA, 'Confirmada'),
-        (ESTADO_CANCELADA, 'Cancelada'),
+        (ESTADO_PENDIENTE, _('Pendiente')),
+        (ESTADO_CONFIRMADA, _('Confirmada')),
+        (ESTADO_CANCELADA, _('Cancelada')),
     ]
 
     paciente_nombre = models.CharField(max_length=150)

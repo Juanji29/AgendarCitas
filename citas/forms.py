@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from .models import Cita
 from .services import CitaService
@@ -8,8 +9,8 @@ from usuarios.models import Medico
 class CitaForm(forms.ModelForm):
     medico_nombre = forms.ModelChoiceField(
         queryset=Medico.objects.none(),
-        label='Médico',
-        empty_label='Seleccione un médico',
+        label=_('Médico'),
+        empty_label=_('Seleccione un médico'),
     )
 
     class Meta:
@@ -23,6 +24,14 @@ class CitaForm(forms.ModelForm):
             'hora',
             'motivo',
         ]
+        labels = {
+            'paciente_nombre': _('Nombre del paciente'),
+            'paciente_email': _('Correo electrónico del paciente'),
+            'especialidad': _('Especialidad'),
+            'fecha': _('Fecha'),
+            'hora': _('Hora'),
+            'motivo': _('Motivo'),
+        }
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date'}),
             'hora': forms.TimeInput(attrs={'type': 'time'}),

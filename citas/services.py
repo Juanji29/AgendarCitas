@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Value
 from django.db.models.functions import Concat
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from .builders import CitaBuilder
 from .exceptions import ConflictError, DomainValidationError, NotFoundError
@@ -37,7 +38,7 @@ class CitaService:
             especialidades=datos['especialidad'],
         ).exists():
             raise DomainValidationError(
-                'El médico seleccionado no está asociado a esta especialidad.'
+                _('El médico seleccionado no está asociado a esta especialidad.')
             )
 
         CitaService._validar_disponibilidad(cita)
@@ -75,10 +76,12 @@ class CitaService:
                 paciente_email=correo,
             )
         except Cita.DoesNotExist as error:
-            raise NotFoundError('La cita no existe o no pertenece al paciente.') from error
+            raise NotFoundError(
+                _('La cita no existe o no pertenece al paciente.')
+            ) from error
 
         if cita.estado == Cita.ESTADO_CANCELADA:
-            raise ConflictError('La cita ya está cancelada.')
+            raise ConflictError(_('La cita ya está cancelada.'))
 
         cita.estado = Cita.ESTADO_CANCELADA
         cita.save(update_fields=['estado'])
@@ -87,7 +90,9 @@ class CitaService:
     @staticmethod
     def _validar_fecha(cita):
         if cita.fecha < timezone.localdate():
-            raise DomainValidationError('No se pueden agendar citas en fechas pasadas.')
+            raise DomainValidationError(
+                _('No se pueden agendar citas en fechas pasadas.')
+            )
 
     @staticmethod
     def _validar_disponibilidad(cita):
@@ -98,4 +103,6 @@ class CitaService:
         ).exclude(estado=Cita.ESTADO_CANCELADA).exists()
 
         if conflicto:
-            raise ConflictError('El médico ya tiene una cita agendada en ese horario.')
+            raise ConflictError(
+                _('El médico ya tiene una cita agendada en ese horario.')
+            )
