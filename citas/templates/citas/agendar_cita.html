@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Agendar Cita · HealthBook</title>
-    {% load static %}
+    {% load i18n static %}
+    <title>{% trans "Agendar cita" %} · HealthBook</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700..800&display=swap" rel="stylesheet">
@@ -17,13 +17,13 @@
                 <span class="brand-mark" aria-hidden="true"></span>
                 <span class="brand-name">HealthBook</span>
             </div>
-            <a class="logout-link" href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
+            <a class="logout-link" href="{% url 'usuarios:logout' %}">{% trans "Cerrar sesión" %}</a>
             {% include 'shared/language_selector.html' %}
         </header>
 
         <div class="booking-layout">
             <section class="booking-panel" aria-labelledby="booking-title">
-                <h1 id="booking-title">Agendar cita</h1>
+                <h1 id="booking-title">{% trans "Agendar cita" %}</h1>
 
                 {% if messages %}
                     {% for message in messages %}
@@ -42,12 +42,12 @@
 
                     <div class="ticket-stub">
                         <div class="stub-field">
-                            <span class="stub-label">Paciente</span>
-                            <span class="stub-value">{{ form.paciente_nombre.value|default:"No disponible" }}</span>
+                            <span class="stub-label">{% trans "Paciente" %}</span>
+                            <span class="stub-value">{% if form.paciente_nombre.value %}{{ form.paciente_nombre.value }}{% else %}{% trans "No disponible" %}{% endif %}</span>
                         </div>
                         <div class="stub-field">
-                            <span class="stub-label">Correo</span>
-                            <span class="stub-value">{{ form.paciente_email.value|default:"No disponible" }}</span>
+                            <span class="stub-label">{% trans "Correo" %}</span>
+                            <span class="stub-value">{% if form.paciente_email.value %}{{ form.paciente_email.value }}{% else %}{% trans "No disponible" %}{% endif %}</span>
                         </div>
                     </div>
 
@@ -58,7 +58,7 @@
                     {{ form.hora.as_field_group }}
                     {{ form.motivo.as_field_group }}
 
-                    <button type="submit" class="btn btn-primary btn-block">Agendar</button>
+                    <button type="submit" class="btn btn-primary btn-block">{% trans "Agendar" %}</button>
                 </form>
             </section>
 
@@ -66,7 +66,7 @@
 
             <section class="appointments" aria-labelledby="appointments-title">
                 <div class="section-heading">
-                    <h2 id="appointments-title">Mis citas</h2>
+                    <h2 id="appointments-title">{% trans "Mis citas" %}</h2>
                     <span class="appointment-count">{{ citas|length }}</span>
                 </div>
 
@@ -81,38 +81,50 @@
                                 <div class="appointment-info">
                                     <strong>{{ cita.especialidad }}</strong>
                                     <span class="appointment-when">{{ cita.fecha|date:'l' }}, {{ cita.hora|time:'H:i' }}</span>
-                                    <span class="appointment-doctor">Dr. {{ cita.medico_nombre }}</span>
+                                    <span class="appointment-doctor">{% trans "Dr." %} {{ cita.medico_nombre }}</span>
                                 </div>
                                 <form method="post" action="{% url 'citas:cancelar_cita' cita.id %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Cancelar</button>
+                                    <button type="submit" class="btn btn-danger">{% trans "Cancelar" %}</button>
                                 </form>
                             </article>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="empty-state">Aún no tienes citas agendadas. Cuando agendes una, aparecerá aquí.</p>
+                    <p class="empty-state">{% trans "Aún no tienes citas agendadas. Cuando agendes una, aparecerá aquí." %}</p>
                 {% endif %}
             </section>
         </div>
     </main>
+    {% trans "Seleccione un médico" as select_doctor %}
+    {% trans "Selecciona una especialidad para ver los médicos disponibles." as select_specialty_message %}
+    {% trans "Cargando médicos..." as loading_doctors_message %}
+    {% trans "No se pudieron cargar los médicos." as doctors_load_error %}
+    {% trans "Selecciona un médico." as select_doctor_message %}
+    {% trans "No hay médicos registrados para esta especialidad." as no_doctors_message %}
     <script>
         const specialtySelect = document.getElementById('id_especialidad');
         const doctorSelect = document.getElementById('id_medico_nombre');
         const doctorStatus = document.getElementById('doctor-status');
         const initialDoctorId = doctorSelect.value;
+        const selectDoctorText = "{{ select_doctor|escapejs }}";
+        const selectSpecialtyMessage = "{{ select_specialty_message|escapejs }}";
+        const loadingDoctorsMessage = "{{ loading_doctors_message|escapejs }}";
+        const doctorsLoadError = "{{ doctors_load_error|escapejs }}";
+        const selectDoctorMessage = "{{ select_doctor_message|escapejs }}";
+        const noDoctorsMessage = "{{ no_doctors_message|escapejs }}";
 
         async function loadDoctors() {
             const specialtyId = specialtySelect.value;
-            doctorSelect.replaceChildren(new Option('Seleccione un médico', ''));
+            doctorSelect.replaceChildren(new Option(selectDoctorText, ''));
             doctorSelect.disabled = true;
 
             if (!specialtyId) {
-                doctorStatus.textContent = 'Selecciona una especialidad para ver los médicos disponibles.';
+                doctorStatus.textContent = selectSpecialtyMessage;
                 return;
             }
 
-            doctorStatus.textContent = 'Cargando médicos...';
+            doctorStatus.textContent = loadingDoctorsMessage;
 
             try {
                 const response = await fetch(
@@ -122,7 +134,7 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result.detail || 'No se pudieron cargar los médicos.');
+                    throw new Error(result.detail || doctorsLoadError);
                 }
 
                 for (const doctor of result.data) {
@@ -135,8 +147,8 @@
 
                 doctorSelect.disabled = result.data.length === 0;
                 doctorStatus.textContent = result.data.length
-                    ? 'Selecciona un médico.'
-                    : 'No hay médicos registrados para esta especialidad.';
+                    ? selectDoctorMessage
+                    : noDoctorsMessage;
 
                 if (result.data.some(doctor => String(doctor.id) === initialDoctorId)) {
                     doctorSelect.value = initialDoctorId;

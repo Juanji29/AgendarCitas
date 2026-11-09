@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar sesión · HealthBook</title>
-    {% load static %}
+    {% load i18n static %}
+    <title>{% trans "Iniciar sesión" %} · HealthBook</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700..800&display=swap" rel="stylesheet">
@@ -17,17 +17,17 @@
             <span class="brand-name">HealthBook</span>
         </div>
         {% include 'shared/language_selector.html' %}
-        <h1>Iniciar sesión</h1>
+        <h1>{% trans "Iniciar sesión" %}</h1>
 
         <form method="post" class="form">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+            <button type="submit" class="btn btn-primary btn-block">{% trans "Iniciar sesión" %}</button>
         </form>
 
         <p class="auth-switch">
-            ¿No tienes una cuenta?
-            <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a>
+            {% trans "¿No tienes una cuenta?" %}
+            <a href="{% url 'usuarios:registro' %}">{% trans "Regístrate aquí" %}</a>
         </p>
     </main>
 </body>
