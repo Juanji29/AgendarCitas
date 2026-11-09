@@ -7,74 +7,92 @@
     {% load static %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'healthbook/css/styles.css' %}">
 </head>
 <body class="page booking-page">
-    <main class="card ticket-card">
-        <div class="brand">
-            <span class="brand-mark" aria-hidden="true"></span>
-            <span class="brand-name">HealthBook</span>
-        </div>
-        <h1>Agendar cita</h1>
-
-        <form method="post" class="form">
-            {% csrf_token %}
-            {{ form.paciente_nombre.as_hidden }}
-            {{ form.paciente_email.as_hidden }}
-
-            <div class="ticket-stub">
-                <div class="stub-field">
-                    <span class="stub-label">Paciente</span>
-                    <span class="stub-value">{{ form.paciente_nombre.value|default:"No disponible" }}</span>
-                </div>
-                <div class="stub-field">
-                    <span class="stub-label">Correo</span>
-                    <span class="stub-value">{{ form.paciente_email.value|default:"No disponible" }}</span>
-                </div>
+    <main class="card ticket-card booking-card">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">HealthBook</span>
             </div>
+            <a class="logout-link" href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
+        </header>
 
-            <div class="ticket-divider"></div>
+        <div class="booking-layout">
+            <section class="booking-panel" aria-labelledby="booking-title">
+                <h1 id="booking-title">Agendar cita</h1>
 
-            {{ form.medico_nombre.as_field_group }}
-            {{ form.especialidad.as_field_group }}
-            {{ form.fecha.as_field_group }}
-            {{ form.hora.as_field_group }}
-            {{ form.motivo.as_field_group }}
-
-            <button type="submit" class="btn btn-primary btn-block">Agendar</button>
-        </form>
-
-        <div class="ticket-divider"></div>
-
-        <section class="appointments" aria-labelledby="appointments-title">
-            <div class="section-heading">
-                <h2 id="appointments-title">Mis citas</h2>
-                <span class="appointment-count">{{ citas|length }}</span>
-            </div>
-
-            {% if citas %}
-                <div class="appointment-list">
-                    {% for cita in citas %}
-                        <article class="appointment-item">
-                            <div>
-                                <strong>{{ cita.especialidad }}</strong>
-                                <span>{{ cita.fecha|date:'d/m/Y' }} · {{ cita.hora|time:'H:i' }}</span>
-                                <span>Dr. {{ cita.medico_nombre }}</span>
-                            </div>
-                            <form method="post" action="{% url 'citas:cancelar_cita' cita.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">Cancelar</button>
-                            </form>
-                        </article>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}" role="status">{{ message }}</div>
                     {% endfor %}
-                </div>
-            {% else %}
-                <p class="empty-state">No tienes citas agendadas.</p>
-            {% endif %}
-        </section>
+                {% endif %}
 
-        <a class="logout-link" href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
+                {% if form.non_field_errors %}
+                    <div class="alert" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <form method="post" class="form">
+                    {% csrf_token %}
+                    {{ form.paciente_nombre.as_hidden }}
+                    {{ form.paciente_email.as_hidden }}
+
+                    <div class="ticket-stub">
+                        <div class="stub-field">
+                            <span class="stub-label">Paciente</span>
+                            <span class="stub-value">{{ form.paciente_nombre.value|default:"No disponible" }}</span>
+                        </div>
+                        <div class="stub-field">
+                            <span class="stub-label">Correo</span>
+                            <span class="stub-value">{{ form.paciente_email.value|default:"No disponible" }}</span>
+                        </div>
+                    </div>
+
+                    {{ form.medico_nombre.as_field_group }}
+                    {{ form.especialidad.as_field_group }}
+                    {{ form.fecha.as_field_group }}
+                    {{ form.hora.as_field_group }}
+                    {{ form.motivo.as_field_group }}
+
+                    <button type="submit" class="btn btn-primary btn-block">Agendar</button>
+                </form>
+            </section>
+
+            <div class="ticket-divider" aria-hidden="true"></div>
+
+            <section class="appointments" aria-labelledby="appointments-title">
+                <div class="section-heading">
+                    <h2 id="appointments-title">Mis citas</h2>
+                    <span class="appointment-count">{{ citas|length }}</span>
+                </div>
+
+                {% if citas %}
+                    <div class="appointment-list">
+                        {% for cita in citas %}
+                            <article class="appointment-item">
+                                <time class="date-leaf" datetime="{{ cita.fecha|date:'Y-m-d' }}">
+                                    <span class="date-leaf-day">{{ cita.fecha|date:'d' }}</span>
+                                    <span class="date-leaf-month">{{ cita.fecha|date:'M Y' }}</span>
+                                </time>
+                                <div class="appointment-info">
+                                    <strong>{{ cita.especialidad }}</strong>
+                                    <span class="appointment-when">{{ cita.fecha|date:'l' }}, {{ cita.hora|time:'H:i' }}</span>
+                                    <span class="appointment-doctor">Dr. {{ cita.medico_nombre }}</span>
+                                </div>
+                                <form method="post" action="{% url 'citas:cancelar_cita' cita.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Cancelar</button>
+                                </form>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">Aún no tienes citas agendadas. Cuando agendes una, aparecerá aquí.</p>
+                {% endif %}
+            </section>
+        </div>
     </main>
 </body>
 </html>

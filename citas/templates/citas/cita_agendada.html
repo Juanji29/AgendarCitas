@@ -7,15 +7,27 @@
     {% load static %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'healthbook/css/styles.css' %}">
 </head>
 <body class="page confirmation-page">
     <main class="card ticket-card confirmation-ticket">
-        <div class="stamp" aria-hidden="true">&#10003;</div>
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-name">HealthBook</span>
+        </div>
+
+        <div class="stamp" aria-hidden="true">
+            <svg viewBox="0 0 52 52">
+                <circle class="check-ring" cx="26" cy="26" r="23"/>
+                <path class="check-mark" d="M15 27l8 8 15-17"/>
+            </svg>
+        </div>
+
         <h1>¡Tu cita fue agendada correctamente!</h1>
+
         <a class="btn btn-primary btn-block" href="{% url 'citas:agendar_cita' %}">
-            Registrar otra cita
+            Agendar otra cita
         </a>
     </main>
 </body>
