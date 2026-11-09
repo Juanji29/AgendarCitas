@@ -170,9 +170,16 @@ a:focus-visible,
   margin-bottom: 6px;
 }
 
+/* as_field_group no envuelve cada campo en un div: el espacio entre campos
+   lo da el label que abre cada grupo */
+.form > label {
+  margin-top: 18px;
+}
+
 .form input,
 .form select,
 .form textarea {
+  display: block;
   width: 100%;
   min-height: 46px;
   font-family: var(--font-body);
@@ -366,7 +373,7 @@ a:focus-visible,
 }
 
 .form > .ticket-stub {
-  margin-bottom: 22px;
+  margin-bottom: 4px;
 }
 
 .stub-field {
