@@ -3,11 +3,11 @@ import json
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from .services import CitaService
+from .exceptions import ConflictError, DomainValidationError, NotFoundError
 from .models import Cita, Especialidad
 from usuarios.models import Paciente
 from usuarios.models import Medico
@@ -129,7 +129,7 @@ class CitaServiceTests(TestCase):
 		)
 
 		with self.assertRaisesMessage(
-			ValidationError,
+			DomainValidationError,
 			'No se pueden agendar citas en fechas pasadas.',
 		):
 			CitaService.agendar_cita({
@@ -141,6 +141,29 @@ class CitaServiceTests(TestCase):
 				'hora': time(10, 0),
 				'motivo': 'Consulta',
 			})
+
+	def test_conflicting_appointment_raises_conflict_error(self):
+		especialidad = Especialidad.objects.create(nombre='Cardiologia', duracion_minutos=30)
+		Cita.objects.create(
+			paciente_nombre='Otra Persona',
+			medico_nombre='Carlos Perez',
+			especialidad=especialidad,
+			fecha=date.today() + timedelta(days=1),
+			hora=time(10, 0),
+		)
+
+		with self.assertRaises(ConflictError):
+			CitaService.agendar_cita({
+				'paciente_nombre': 'Ana Gomez',
+				'medico_nombre': 'Carlos Perez',
+				'especialidad': especialidad,
+				'fecha': date.today() + timedelta(days=1),
+				'hora': time(10, 0),
+			})
+
+	def test_cancelling_unknown_appointment_raises_not_found_error(self):
+		with self.assertRaises(NotFoundError):
+			CitaService.cancelar_cita(999, 'ana@example.com')
 
 	def test_get_does_not_prefill_anonymous_patient_data(self):
 		response = self.client.get('/citas/agendar/')
