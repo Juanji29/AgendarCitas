@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -142,3 +144,67 @@ class PatientRegistrationAPIView(APIView):
             {'data': UserSerializer(user).data},
             status=status.HTTP_201_CREATED,
         )
+
+
+class AppointmentSummaryAPIView(APIView):
+    """Servicio a Proveer: endpoint JSON con información agregada del sistema.
+
+    Expone conteos de citas (total, por especialidad y por estado) sin datos
+    personales. Es el servicio que el equipo aliado puede consumir.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        resumen = CitaService.generar_resumen()
+        resumen['generado_en'] = timezone.now().isoformat()
+        return Response({'data': resumen})
+
+
+class SystemInfoAPIView(APIView):
+    """Servicio a Proveer: metadatos del sistema para el equipo aliado.
+
+    Devuelve identidad y capacidades del servicio para facilitar la
+    integración entre equipos (descubrimiento del contrato).
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({
+            'data': {
+                'servicio': 'healthbook-citas',
+                'descripcion': str(_('Agenda de citas médicas HealthBook.')),
+                'version': 'v1',
+                'idiomas': [codigo for codigo, _nombre in settings.LANGUAGES],
+                'endpoints': {
+                    'resumen': '/api/v1/citas/resumen/',
+                    'especialidades': '/api/v1/especialidades/',
+                    'medicos': '/api/v1/medicos/',
+                    'citas': '/api/v1/citas/',
+                },
+                'generado_en': timezone.now().isoformat(),
+            }
+        })
+
+
+class AllyServiceAPIView(APIView):
+    """Servicio a Consumir: muestra en nuestra app el resumen del equipo aliado.
+
+    Consume el servicio del aliado mediante el Patrón Adapter (puerto
+    ServicioAliadoPort). Si el aliado no responde, devuelve disponible=False
+    sin propagar el fallo (resiliencia).
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        resumen = CitaService.consumir_resumen_aliado()
+        return Response({
+            'data': {
+                'servicio': resumen.servicio,
+                'disponible': resumen.disponible,
+                'total': resumen.total,
+                'detalle': resumen.detalle,
+            }
+        })

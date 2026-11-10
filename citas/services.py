@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .builders import CitaBuilder
 from .exceptions import ConflictError, DomainValidationError, NotFoundError
-from .factories import NotificadorFactory
+from .factories import IntegracionesFactory, NotificadorFactory
 from .models import Cita, Especialidad
 from usuarios.models import Medico
 
@@ -45,8 +45,11 @@ class CitaService:
 
         cita.save()
 
-        notificador = NotificadorFactory.crear_notificador()
-        notificador.notificar_confirmacion(cita)
+        # Message Broker (Celery): la notificación se procesa en segundo plano
+        # para no bloquear el agendamiento. Si Celery no está disponible, la
+        # tarea de reemplazo la ejecuta de forma síncrona (resiliencia).
+        from .tasks import enviar_notificacion_confirmacion
+        enviar_notificacion_confirmacion.delay(cita.id)
 
         return cita
 
@@ -57,6 +60,67 @@ class CitaService:
         ).exclude(
             estado=Cita.ESTADO_CANCELADA,
         ).select_related('especialidad').order_by('fecha', 'hora')
+
+    @staticmethod
+    def generar_resumen():
+        """Agrega conteos de citas sin exponer datos personales (PII).
+
+        Devuelve:
+          - total: todas las citas, incluidas canceladas.
+          - por_especialidad: conteo por especialidad local (id + nombre).
+          - por_estado: conteo por cada estado definido en el modelo.
+        """
+        from django.db.models import Count
+
+        total = Cita.objects.count()
+
+        por_especialidad = list(
+            Cita.objects.values('especialidad__id', 'especialidad__nombre')
+            .annotate(total=Count('id'))
+            .order_by('especialidad__id')
+        )
+        por_especialidad = [
+            {
+                'id': fila['especialidad__id'],
+                'nombre': fila['especialidad__nombre'],
+                'total': fila['total'],
+            }
+            for fila in por_especialidad
+        ]
+
+        conteos = dict(
+            Cita.objects.values_list('estado').annotate(total=Count('id'))
+        )
+        por_estado = {
+            estado: conteos.get(estado, 0)
+            for estado, _etiqueta in Cita.ESTADO_CHOICES
+        }
+
+        return {
+            'total': total,
+            'por_especialidad': por_especialidad,
+            'por_estado': por_estado,
+        }
+
+    @staticmethod
+    def consultar_festivo(fecha, proveedor=None):
+        """Consulta la API de terceros (vía Adapter) si la fecha es festiva.
+
+        Depende del puerto ProveedorDiasFestivosPort, no de la API concreta.
+        Nunca lanza: ante fallo externo, el adaptador degrada a no festivo.
+        """
+        proveedor = proveedor or IntegracionesFactory.proveedor_festivos()
+        return proveedor.es_festivo(fecha)
+
+    @staticmethod
+    def consumir_resumen_aliado(servicio=None):
+        """Consume el servicio del equipo aliado (vía Adapter).
+
+        Depende del puerto ServicioAliadoPort. Devuelve un ResumenAliado
+        normalizado, con disponible=False si el aliado no responde.
+        """
+        servicio = servicio or IntegracionesFactory.servicio_aliado()
+        return servicio.obtener_resumen()
 
     @staticmethod
     def obtener_especialidades():

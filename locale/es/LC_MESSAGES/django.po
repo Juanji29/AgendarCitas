@@ -73,6 +73,19 @@ msgstr ""
 msgid "Confirmación de cita médica"
 msgstr ""
 
+#: .\citas\views.py:40
+#, python-format
+msgid "Ten en cuenta que la fecha elegida es un día festivo: %(nombre)s."
+msgstr ""
+
+#: .\citas\views.py:42
+msgid "día festivo"
+msgstr ""
+
+#: .\citas\api_views.py:175
+msgid "Agenda de citas médicas HealthBook."
+msgstr ""
+
 #: .\citas\serializers.py:20 .\citas\serializers.py:34
 #: .\citas\serializers.py:88 .\usuarios\serializers.py:38
 #: .\usuarios\serializers.py:48

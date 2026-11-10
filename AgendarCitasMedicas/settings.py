@@ -108,6 +108,30 @@ NOTIFICACIONES_SERVICE_URL = os.getenv(
 NOTIFICACIONES_SERVICE_TIMEOUT = int(os.getenv('NOTIFICACIONES_SERVICE_TIMEOUT', '5'))
 
 
+# --- Integraciones externas vía Patrón Adapter (Inversión de Dependencias) ---
+# API de terceros: días festivos (Nager.Date). Si falla, se degrada sin bloquear.
+FESTIVOS_API_URL = os.getenv('FESTIVOS_API_URL', 'https://date.nager.at')
+FESTIVOS_API_PAIS = os.getenv('FESTIVOS_API_PAIS', 'CO')
+FESTIVOS_API_TIMEOUT = int(os.getenv('FESTIVOS_API_TIMEOUT', '3'))
+
+# Servicio del equipo aliado: resumen JSON equivalente a nuestro /api/v1/citas/resumen/.
+ALIADO_SERVICE_URL = os.getenv('ALIADO_SERVICE_URL', '')
+ALIADO_SERVICE_NOMBRE = os.getenv('ALIADO_SERVICE_NOMBRE', 'equipo-aliado')
+ALIADO_SERVICE_TIMEOUT = int(os.getenv('ALIADO_SERVICE_TIMEOUT', '3'))
+
+# Microservicio de catálogo (Flask + DB propia). Plan B: tabla local Especialidad.
+CATALOGO_SERVICE_URL = os.getenv('CATALOGO_SERVICE_URL', '')
+CATALOGO_SERVICE_TIMEOUT = int(os.getenv('CATALOGO_SERVICE_TIMEOUT', '3'))
+
+# Message Broker (Redis/Celery) para tareas de fondo.
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
+# Cuando no hay broker (tests/local), ejecuta las tareas de forma síncrona.
+CELERY_TASK_ALWAYS_EAGER = os.getenv('CELERY_TASK_ALWAYS_EAGER', 'False').lower() in (
+    '1', 'true', 'yes',
+)
+
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 

@@ -1,4 +1,16 @@
 services:
+  # --- Message Broker (Redis) para tareas asíncronas con Celery ---
+  redis:
+    image: redis:7-alpine
+    container_name: healthbook_redis
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   # --- Monolito legacy (Django) ---
   django:
     build:
@@ -10,12 +22,40 @@ services:
       - USAR_MICROSERVICIO_NOTIFICACIONES=True
       - NOTIFICACIONES_SERVICE_URL=http://nginx
       - NOTIFICACIONES_SERVICE_TIMEOUT=5
+      # Integraciones externas (Patrón Adapter)
+      - FESTIVOS_API_URL=https://date.nager.at
+      - FESTIVOS_API_PAIS=CO
+      # Microservicio de catálogo vía Nginx (plan B: tabla local)
+      - CATALOGO_SERVICE_URL=http://nginx
+      # Servicio del equipo aliado (configurar su URL en el despliegue)
+      - ALIADO_SERVICE_URL=
+      # Message Broker (Celery + Redis)
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
     expose:
       - "8000"
     depends_on:
       - notificaciones
+      - catalogo
+      - redis
 
-  # --- Microservicio estrangulado (Flask) ---
+  # --- Worker de Celery (procesa tareas de fondo del monolito) ---
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: healthbook_celery
+    command: celery -A AgendarCitasMedicas worker --loglevel=info
+    environment:
+      - USAR_MICROSERVICIO_NOTIFICACIONES=True
+      - NOTIFICACIONES_SERVICE_URL=http://nginx
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - redis
+      - notificaciones
+
+  # --- Microservicio estrangulado: Notificaciones (Flask) ---
   notificaciones:
     build:
       context: ./notificaciones_service
@@ -27,7 +67,18 @@ services:
     expose:
       - "5000"
 
-  # --- Orquestador de tráfico (Nginx) ---
+  # --- Microservicio estrangulado: Catálogo (Flask + DB propia) ---
+  catalogo:
+    build:
+      context: ./catalogo_service
+      dockerfile: Dockerfile
+    container_name: healthbook_catalogo
+    environment:
+      - CATALOGO_DB_PATH=/app/catalogo.sqlite3
+    expose:
+      - "5000"
+
+  # --- Orquestador de tráfico (Nginx como API Gateway) ---
   nginx:
     image: nginx:1.27-alpine
     container_name: healthbook_nginx
@@ -38,3 +89,4 @@ services:
     depends_on:
       - django
       - notificaciones
+      - catalogo

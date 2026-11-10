@@ -265,3 +265,67 @@ sus pruebas. Actualmente devuelve `{"data": [...]}` y filtra por `activa=True`.
 El nuevo catálogo expone una lista equivalente para permitir la migración
 gradual del selector. El resumen propuesto es una ruta nueva y no duplica
 ninguna ruta E1 existente.
+
+## 3. Informacion del sistema (Servicio a Proveer)
+
+### `GET /api/v1/info/`
+
+Metadatos del servicio para el descubrimiento entre equipos. No requiere
+autenticacion.
+
+**200**
+
+```json
+{
+  "data": {
+    "servicio": "healthbook-citas",
+    "descripcion": "Agenda de citas medicas HealthBook.",
+    "version": "v1",
+    "idiomas": ["es", "en"],
+    "endpoints": {
+      "resumen": "/api/v1/citas/resumen/",
+      "especialidades": "/api/v1/especialidades/",
+      "medicos": "/api/v1/medicos/",
+      "citas": "/api/v1/citas/"
+    },
+    "generado_en": "2026-11-09T22:30:00Z"
+  }
+}
+```
+
+## 4. Resumen del equipo aliado (Servicio a Consumir)
+
+### `GET /api/v1/aliado/resumen/`
+
+Consume, via Patron Adapter, el endpoint `GET /api/v1/citas/resumen/` publicado
+por el equipo aliado (URL en `ALIADO_SERVICE_URL`) y lo normaliza. Si el aliado
+no responde, devuelve `disponible: false` sin propagar el fallo (resiliencia).
+
+**200 (aliado disponible)**
+
+```json
+{
+  "data": {
+    "servicio": "equipo-aliado",
+    "disponible": true,
+    "total": 23,
+    "detalle": {
+      "por_estado": {"pendiente": 7, "confirmada": 12, "cancelada": 4},
+      "por_especialidad": [{"id": 1, "nombre": "cardiologia", "total": 8}]
+    }
+  }
+}
+```
+
+**200 (aliado no disponible)**
+
+```json
+{
+  "data": {
+    "servicio": "equipo-aliado",
+    "disponible": false,
+    "total": 0,
+    "detalle": {}
+  }
+}
+```

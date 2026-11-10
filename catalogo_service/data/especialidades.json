@@ -1,0 +1,42 @@
+﻿[
+{
+  "model": "citas.especialidad",
+  "pk": 1,
+  "fields": {
+    "nombre": "cardiologia",
+    "duracion_minutos": 30,
+    "requiere_referido": true,
+    "activa": true
+  }
+},
+{
+  "model": "citas.especialidad",
+  "pk": 2,
+  "fields": {
+    "nombre": "pediatria",
+    "duracion_minutos": 25,
+    "requiere_referido": false,
+    "activa": true
+  }
+},
+{
+  "model": "citas.especialidad",
+  "pk": 3,
+  "fields": {
+    "nombre": "dermatologia",
+    "duracion_minutos": 20,
+    "requiere_referido": false,
+    "activa": true
+  }
+},
+{
+  "model": "citas.especialidad",
+  "pk": 4,
+  "fields": {
+    "nombre": "medicina general",
+    "duracion_minutos": 20,
+    "requiere_referido": false,
+    "activa": true
+  }
+}
+]

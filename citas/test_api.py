@@ -223,3 +223,65 @@ class PatientRegistrationAPITests(APITestCase):
 
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.data['error'], 'conflict')
+
+
+class AppointmentSummaryAPITests(APITestCase):
+    def setUp(self):
+        self.cardio, _ = Especialidad.objects.get_or_create(
+            nombre='cardiologia', defaults={'duracion_minutos': 30},
+        )
+        self.pedia, _ = Especialidad.objects.get_or_create(
+            nombre='pediatria', defaults={'duracion_minutos': 25},
+        )
+        # Evita contar citas sembradas por otras pruebas/migraciones.
+        Cita.objects.all().delete()
+        base = timezone.localdate() + timedelta(days=1)
+        Cita.objects.create(
+            paciente_nombre='A', medico_nombre='Dr X', especialidad=self.cardio,
+            fecha=base, hora='09:00', estado=Cita.ESTADO_PENDIENTE,
+        )
+        Cita.objects.create(
+            paciente_nombre='B', medico_nombre='Dr X', especialidad=self.cardio,
+            fecha=base, hora='10:00', estado=Cita.ESTADO_CONFIRMADA,
+        )
+        Cita.objects.create(
+            paciente_nombre='C', medico_nombre='Dr Y', especialidad=self.pedia,
+            fecha=base, hora='11:00', estado=Cita.ESTADO_CANCELADA,
+        )
+        self.url = reverse('api_v1:resumen')
+
+    def test_resumen_no_requiere_autenticacion(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_resumen_devuelve_agregados_sin_pii(self):
+        response = self.client.get(self.url)
+        data = response.data['data']
+
+        self.assertEqual(data['total'], 3)
+        # La suma por estado coincide con el total (todos los estados presentes).
+        self.assertEqual(sum(data['por_estado'].values()), 3)
+        self.assertEqual(data['por_estado']['pendiente'], 1)
+        self.assertEqual(data['por_estado']['confirmada'], 1)
+        self.assertEqual(data['por_estado']['cancelada'], 1)
+        # No se exponen datos personales.
+        texto = str(response.content)
+        self.assertNotIn('paciente_nombre', texto)
+        self.assertIn('generado_en', data)
+
+    def test_resumen_agrupa_por_especialidad(self):
+        response = self.client.get(self.url)
+        por_esp = {fila['nombre']: fila['total'] for fila in response.data['data']['por_especialidad']}
+        self.assertEqual(por_esp['cardiologia'], 2)
+        self.assertEqual(por_esp['pediatria'], 1)
+
+
+class SystemInfoAPITests(APITestCase):
+    def test_info_devuelve_metadatos_del_servicio(self):
+        response = self.client.get(reverse('api_v1:info'))
+        self.assertEqual(response.status_code, 200)
+        data = response.data['data']
+        self.assertEqual(data['servicio'], 'healthbook-citas')
+        self.assertIn('es', data['idiomas'])
+        self.assertIn('en', data['idiomas'])
+        self.assertIn('resumen', data['endpoints'])
