@@ -68,7 +68,7 @@ def _registros_desde_fixture(ruta):
         logger.warning("Fixture de catálogo no encontrado en %s", ruta)
         return []
 
-    contenido = json.loads(path.read_text(encoding="utf-8"))
+    contenido = json.loads(path.read_text(encoding="utf-8-sig"))
     filas = []
     for item in contenido:
         campos = item.get("fields", {})

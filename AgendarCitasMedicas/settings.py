@@ -85,7 +85,8 @@ WSGI_APPLICATION = 'AgendarCitasMedicas.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # En Docker se apunta a un volumen compartido entre Django y Celery.
+        'NAME': os.getenv('DJANGO_DB_PATH', BASE_DIR / 'db.sqlite3'),
     }
 }
 

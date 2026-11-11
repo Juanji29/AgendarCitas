@@ -7,3 +7,7 @@ __pycache__/
 taller02.pdf
 notificaciones_service/
 staticfiles/
+.venv/
+venv/
+db.sqlite3
+.env

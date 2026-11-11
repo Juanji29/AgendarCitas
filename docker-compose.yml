@@ -17,8 +17,17 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: healthbook_django
+    # Aplica migraciones (crea la BD y siembra datos) antes de iniciar gunicorn.
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 AgendarCitasMedicas.wsgi:application"
+    volumes:
+      - django_data:/app/data
     environment:
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django,nginx
+      # En el servidor, agrega la IP pública en un archivo .env:
+      #   DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,django,nginx,<IP-publica>
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,django,nginx}
+      - DJANGO_DB_PATH=/app/data/db.sqlite3
       - USAR_MICROSERVICIO_NOTIFICACIONES=True
       - NOTIFICACIONES_SERVICE_URL=http://nginx
       - NOTIFICACIONES_SERVICE_TIMEOUT=5
@@ -46,7 +55,11 @@ services:
       dockerfile: Dockerfile
     container_name: healthbook_celery
     command: celery -A AgendarCitasMedicas worker --loglevel=info
+    # Comparte la BD con Django para poder leer las citas que debe notificar.
+    volumes:
+      - django_data:/app/data
     environment:
+      - DJANGO_DB_PATH=/app/data/db.sqlite3
       - USAR_MICROSERVICIO_NOTIFICACIONES=True
       - NOTIFICACIONES_SERVICE_URL=http://nginx
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -54,6 +67,7 @@ services:
     depends_on:
       - redis
       - notificaciones
+      - django
 
   # --- Microservicio estrangulado: Notificaciones (Flask) ---
   notificaciones:
@@ -90,3 +104,6 @@ services:
       - django
       - notificaciones
       - catalogo
+
+volumes:
+  django_data:
