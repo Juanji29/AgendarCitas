@@ -20,7 +20,7 @@ bilingue (gettext).
 - Cancelacion de citas del paciente autenticado.
 - Envio asincrono de confirmaciones mediante el microservicio Flask (Celery).
 - Catalogo de especialidades servido por un microservicio independiente.
-- Aviso de dia festivo (API de terceros) al agendar.
+- Bloqueo de citas en dias festivos (API de terceros Nager.Date via Adapter; si la API no responde se permite agendar).
 - Consumo del servicio del equipo aliado.
 - Interfaz HTML servida por Django, bilingue (es/en).
 

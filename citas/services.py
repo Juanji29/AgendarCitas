@@ -15,7 +15,7 @@ class CitaService:
     """Capa de aplicación: orquesta el Builder (construye y valida) y la Factory (notifica)."""
 
     @staticmethod
-    def agendar_cita(datos):
+    def agendar_cita(datos, proveedor_festivos=None):
         try:
             cita = (
                 CitaBuilder()
@@ -30,6 +30,7 @@ class CitaService:
             raise DomainValidationError(str(error)) from error
 
         CitaService._validar_fecha(cita)
+        CitaService._validar_festivo(cita, proveedor_festivos)
 
         if not Medico.objects.annotate(
             nombre_completo=Concat('nombre', Value(' '), 'apellido'),
@@ -156,6 +157,21 @@ class CitaService:
         if cita.fecha < timezone.localdate():
             raise DomainValidationError(
                 _('No se pueden agendar citas en fechas pasadas.')
+            )
+
+    @staticmethod
+    def _validar_festivo(cita, proveedor=None):
+        """Regla de negocio: no se agendan citas en días festivos.
+
+        Consulta la API de terceros a través del puerto/adaptador. Si la API
+        no responde, el adaptador degrada a "no festivo" y se permite agendar
+        (resiliencia: una caída externa no bloquea el servicio).
+        """
+        festivo = CitaService.consultar_festivo(cita.fecha, proveedor)
+        if festivo.es_festivo:
+            raise DomainValidationError(
+                _('No se pueden agendar citas en días festivos: %(nombre)s.')
+                % {'nombre': festivo.nombre or _('día festivo')}
             )
 
     @staticmethod

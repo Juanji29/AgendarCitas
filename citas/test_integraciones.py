@@ -16,7 +16,10 @@ from .integraciones import (
     ResumenHTTPAliadoAdapter,
     ServicioAliadoPort,
 )
+from .exceptions import DomainValidationError
+from .models import Cita, Especialidad
 from .services import CitaService
+from usuarios.models import Medico
 
 
 def _fake_response(payload):
@@ -163,3 +166,63 @@ class CeleryTaskTests(TestCase):
         resultado = generar_reporte_resumen.run()
         self.assertIn('total', resultado)
         self.assertIn('por_estado', resultado)
+
+
+class _ProveedorFestivosFijo:
+    """Puerto falso: responde siempre lo mismo, sin red."""
+
+    def __init__(self, es_festivo, nombre=''):
+        self._es_festivo = es_festivo
+        self._nombre = nombre
+
+    def es_festivo(self, fecha):
+        return InfoDiaFestivo(fecha=fecha, es_festivo=self._es_festivo, nombre=self._nombre)
+
+
+@override_settings(USAR_MICROSERVICIO_NOTIFICACIONES=False, NOTIFICAR_POR_EMAIL=False)
+class BloqueoFestivosTests(TestCase):
+    def setUp(self):
+        self.especialidad = Especialidad.objects.create(nombre='Cardiologia', duracion_minutos=30)
+        self.medico = Medico.objects.create(
+            nombre='Carlos', apellido='Perez', dni='987654321',
+            correo='carlos@example.com', telefono='3009876543', registro_medico='RM-001',
+        )
+        self.medico.especialidades.add(self.especialidad)
+        self.datos = {
+            'paciente_nombre': 'Ana Gomez',
+            'paciente_email': 'ana@example.com',
+            'medico_nombre': 'Carlos Perez',
+            'especialidad': self.especialidad,
+            'fecha': date(2099, 12, 25),
+            'hora': '10:00',
+        }
+
+    def test_no_permite_agendar_en_dia_festivo(self):
+        with self.assertRaisesMessage(DomainValidationError, 'Navidad'):
+            CitaService.agendar_cita(self.datos, _ProveedorFestivosFijo(True, 'Navidad'))
+        self.assertEqual(Cita.objects.count(), 0)
+
+    def test_permite_agendar_en_dia_habil(self):
+        CitaService.agendar_cita(self.datos, _ProveedorFestivosFijo(False))
+        self.assertEqual(Cita.objects.count(), 1)
+
+    def test_si_la_api_de_festivos_cae_se_permite_agendar(self):
+        with patch('citas.integraciones.urllib_request.urlopen') as urlopen:
+            urlopen.side_effect = urllib_error.URLError('sin red')
+            CitaService.agendar_cita(self.datos, NagerDateFestivosAdapter(pais='CO'))
+        self.assertEqual(Cita.objects.count(), 1)
+
+    def test_formulario_web_muestra_error_en_festivo(self):
+        with patch('citas.services.IntegracionesFactory.proveedor_festivos') as factory:
+            factory.return_value = _ProveedorFestivosFijo(True, 'Navidad')
+            response = self.client.post('/citas/agendar/', {
+                'paciente_nombre': 'Ana Gomez',
+                'paciente_email': 'ana@example.com',
+                'medico_nombre': self.medico.pk,
+                'especialidad': self.especialidad.pk,
+                'fecha': '2099-12-25',
+                'hora': '10:00',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Navidad')
+        self.assertEqual(Cita.objects.count(), 0)

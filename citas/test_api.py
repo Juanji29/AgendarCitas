@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
+from .integraciones import InfoDiaFestivo
 from .models import Cita, Especialidad
 from usuarios.models import Medico, Paciente
 
@@ -18,6 +19,13 @@ class AppointmentAPITests(APITestCase):
             password='UnaClaveSegura123!',
         )
         self.client.force_authenticate(self.user)
+        # Aísla las pruebas de la API real de festivos: por defecto, día hábil.
+        festivos_patcher = patch('citas.services.IntegracionesFactory.proveedor_festivos')
+        self.proveedor_festivos = festivos_patcher.start().return_value
+        self.proveedor_festivos.es_festivo.side_effect = (
+            lambda fecha: InfoDiaFestivo(fecha=fecha, es_festivo=False)
+        )
+        self.addCleanup(festivos_patcher.stop)
         self.specialty = Especialidad.objects.create(
             nombre='Cardiologia',
             duracion_minutos=30,
@@ -59,6 +67,22 @@ class AppointmentAPITests(APITestCase):
         self.assertEqual(response.data['data']['especialidad']['nombre'], 'Cardiologia')
         self.assertEqual(Cita.objects.count(), 1)
         factory.return_value.notificar_confirmacion.assert_called_once()
+
+    def test_create_appointment_on_holiday_returns_400(self):
+        self.proveedor_festivos.es_festivo.side_effect = (
+            lambda fecha: InfoDiaFestivo(fecha=fecha, es_festivo=True, nombre='Día de prueba')
+        )
+
+        response = self.client.post(
+            self.appointment_url,
+            self.appointment_payload(),
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['error'], 'validation_error')
+        self.assertIn('Día de prueba', response.data['detail'])
+        self.assertEqual(Cita.objects.count(), 0)
 
     def test_invalid_appointment_payload_returns_400(self):
         response = self.client.post(

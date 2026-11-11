@@ -9,6 +9,7 @@ from django.utils.translation import override
 
 from .services import CitaService
 from .exceptions import ConflictError, DomainValidationError, NotFoundError
+from .integraciones import InfoDiaFestivo
 from .models import Cita, Especialidad
 from usuarios.models import Paciente
 from usuarios.models import Medico
@@ -93,6 +94,14 @@ class AgendarCitaViewTests(TestCase):
 
 
 class CitaServiceTests(TestCase):
+	def setUp(self):
+		# Aísla las pruebas de la API real de festivos: por defecto, día hábil.
+		festivos_patcher = patch('citas.services.IntegracionesFactory.proveedor_festivos')
+		festivos_patcher.start().return_value.es_festivo.side_effect = (
+			lambda fecha: InfoDiaFestivo(fecha=fecha, es_festivo=False)
+		)
+		self.addCleanup(festivos_patcher.stop)
+
 	@patch('citas.notificaciones.urllib_request.urlopen')
 	def test_notificador_http_envia_la_notificacion_por_nginx(self, urlopen):
 		respuesta = Mock()

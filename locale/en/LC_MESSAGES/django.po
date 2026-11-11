@@ -77,8 +77,8 @@ msgstr "Medical appointment confirmation"
 
 #: .\citas\views.py:40
 #, python-format
-msgid "Ten en cuenta que la fecha elegida es un día festivo: %(nombre)s."
-msgstr "Note that the selected date is a public holiday: %(nombre)s."
+msgid "No se pueden agendar citas en días festivos: %(nombre)s."
+msgstr "Appointments cannot be booked on public holidays: %(nombre)s."
 
 #: .\citas\views.py:42
 msgid "día festivo"
